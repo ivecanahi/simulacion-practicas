@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.atl/
+
+# Guías firmadas por el docente: contienen firma y QR personales, no se publican.
+*.pdf
