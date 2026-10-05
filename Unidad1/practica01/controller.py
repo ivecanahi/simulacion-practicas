@@ -25,6 +25,6 @@ class RainSimulationController:
     def __init__(self, data):
         self.data = data
 
-    def run(self):
-        """Crea un HourRecord por cada fila de BASE_DATA y lo procesa."""
-        return [HourRecord(*row).process() for row in self.data]
+    def run(self, weights):
+        """Crea un HourRecord por cada fila de BASE_DATA y lo procesa con el set de pesos dado."""
+        return [HourRecord(*row).process(weights) for row in self.data]

@@ -28,13 +28,17 @@ class ChartView:
     """Genera las graficas que pide la guia (punto 6)."""
 
     @staticmethod
-    def plot_index(records, output_file):
-        """Grafica la evolucion del indice I a lo largo del dia, con los umbrales de la tabla de reglas."""
-        hours = [r.hour for r in records]
-        indices = [r.index for r in records]
-
+    def plot_index(records_by_label, output_file):
+        """
+        Grafica la evolucion del indice I a lo largo del dia, comparando el
+        modelo original contra el ajustado (mismos H/N/Tf, distintos pesos),
+        con los umbrales de la tabla de reglas de referencia.
+        """
         plt.figure(figsize=(9, 5))
-        plt.plot(hours, indices, marker="o", color="tab:blue", label="Indice I")
+        for label, records in records_by_label.items():
+            hours = [r.hour for r in records]
+            indices = [r.index for r in records]
+            plt.plot(hours, indices, marker="o", label=label)
         plt.axhline(0.40, linestyle="--", linewidth=0.8, color="gray", label="Umbral 0.40")
         plt.axhline(0.60, linestyle="--", linewidth=0.8, color="gray", label="Umbral 0.60")
         plt.axhline(0.75, linestyle="--", linewidth=0.8, color="gray", label="Umbral 0.75")
