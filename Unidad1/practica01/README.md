@@ -19,10 +19,7 @@ I = 0.5*H + 0.3*N + 0.2*Tf
 | 0.60 ≤ I < 0.75 | Lluvia probable |
 | I ≥ 0.75 | Lluvia |
 
-La guía pide calcular la tabla dos veces: una con el modelo original y otra con el modelo "ajustado". Se observó que la tabla de `Tf` de la guía es en realidad una recta (`Tf = 1.00 - 0.05*(T-10)`), así que:
-
-- **Modelo original** (`temperature_factor_discrete`): usa la tabla tal cual, por escalones.
-- **Modelo ajustado** (`temperature_factor_continuous`): usa la fórmula lineal, lo que permite calcular `Tf` para cualquier temperatura (incluidas las que no están en la tabla, como 15 °C o 17 °C).
+Para temperaturas que no están exactamente en la tabla de `Tf` (ej. 15 °C, 17 °C), se usa el siguiente escalón igual o mayor, siguiendo la misma lógica de "tabla de reglas" con la que está redactada la tabla original (`≤10°C`, `≥28°C`).
 
 ## Arquitectura (MVC)
 
@@ -31,7 +28,7 @@ La guía pide calcular la tabla dos veces: una con el modelo original y otra con
 | `model.py` | Fórmula del índice, tabla de temperatura y clasificación de estado. Sin I/O. |
 | `controller.py` | Datos de entrada (la tabla de la guía) y orquestación: le pide al modelo que procese cada hora. |
 | `view.py` | Tabla por consola y gráficas (`matplotlib`). |
-| `main.py` | Arma el flujo: controller → model → view, para el modelo original y el ajustado. |
+| `main.py` | Arma el flujo: controller → model → view. |
 
 ## Cómo correr
 
@@ -40,11 +37,9 @@ pip install -r ../../requirements.txt
 python3 main.py
 ```
 
-Genera `indice_lluvia.png` (evolución del índice durante el día) y `factor_temperatura.png` (Tf discreto vs. ajustado).
+Genera `indice_lluvia.png` (evolución del índice durante el día) y `factor_temperatura.png` (influencia de la temperatura en Tf).
 
 ## Resultados
-
-**Modelo original (Tf por tabla discreta):**
 
 | Hora | Humedad | Nubosidad | Temp | H | N | Tf | Índice | Estado |
 |---|---|---|---|---|---|---|---|---|
@@ -57,22 +52,6 @@ Genera `indice_lluvia.png` (evolución del índice durante el día) y `factor_te
 | 18:00 | 92 | 95 | 16 | 0.92 | 0.95 | 0.70 | 0.89 | Lluvia |
 | 20:00 | 88 | 90 | 17 | 0.88 | 0.90 | 0.60 | 0.83 | Lluvia |
 | 22:00 | 80 | 75 | 15 | 0.80 | 0.75 | 0.70 | 0.77 | Lluvia |
-
-**Modelo ajustado (Tf por interpolación lineal):**
-
-| Hora | Humedad | Nubosidad | Temp | H | N | Tf | Índice | Estado |
-|---|---|---|---|---|---|---|---|---|
-| 06:00 | 65 | 40 | 14 | 0.65 | 0.40 | 0.80 | 0.60 | Lluvia probable |
-| 08:00 | 70 | 50 | 16 | 0.70 | 0.50 | 0.70 | 0.64 | Lluvia probable |
-| 10:00 | 68 | 45 | 18 | 0.68 | 0.45 | 0.60 | 0.59 | Baja posibilidad |
-| 12:00 | 60 | 30 | 22 | 0.60 | 0.30 | 0.40 | 0.47 | Baja posibilidad |
-| 14:00 | 75 | 70 | 20 | 0.75 | 0.70 | 0.50 | 0.68 | Lluvia probable |
-| 16:00 | 85 | 85 | 18 | 0.85 | 0.85 | 0.60 | 0.80 | Lluvia |
-| 18:00 | 92 | 95 | 16 | 0.92 | 0.95 | 0.70 | 0.89 | Lluvia |
-| 20:00 | 88 | 90 | 17 | 0.88 | 0.90 | 0.65 | 0.84 | Lluvia |
-| 22:00 | 80 | 75 | 15 | 0.80 | 0.75 | 0.75 | 0.78 | Lluvia |
-
-La única diferencia está en 20:00 y 22:00, horas con temperaturas (17 °C, 15 °C) que no estaban en la tabla original: el modelo discreto las redondea hacia el siguiente escalón, el ajustado las calcula de forma exacta.
 
 ## Preguntas de control
 

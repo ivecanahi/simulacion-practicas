@@ -5,8 +5,8 @@ Formula entregada en la guia:
     I = 0.5*H + 0.3*N + 0.2*Tf
 
 donde H = humedad normalizada, N = nubosidad normalizada y Tf = factor de
-temperatura (obtenido de una tabla de referencia). Este modulo no sabe nada
-de consola ni de graficas: solo calcula.
+temperatura (obtenido de la tabla de referencia de la guia). Este modulo no
+sabe nada de consola ni de graficas: solo calcula.
 """
 
 # Tabla de factor de temperatura entregada por la guia de la practica.
@@ -24,7 +24,7 @@ TEMPERATURE_TABLE = [
     (28, 0.10),
 ]
 
-# Pesos fijos de la formula I = W_H*H + W_N*N + W_TF*Tf
+# Pesos fijos de la formula I = W_H*H + W_N*N + W_TF*Tf (dados por la guia).
 W_H, W_N, W_TF = 0.5, 0.3, 0.2
 
 
@@ -33,11 +33,12 @@ def normalize(value):
     return value / 100
 
 
-def temperature_factor_discrete(temp):
+def temperature_factor(temp):
     """
-    Modelo ORIGINAL: busca Tf recorriendo la tabla tal cual la entrega la guia.
-    Si la temperatura cae entre dos filas de la tabla (ej. 17C), se usa el
-    siguiente escalon hacia arriba (comportamiento tipo "tabla de reglas").
+    Busca Tf en TEMPERATURE_TABLE siguiendo la 'tabla de reglas' de la guia
+    (<=10C -> 1.00, >=28C -> 0.10). Para una temperatura que no esta en la
+    tabla (ej. 17C), se toma el siguiente escalon igual o mayor, que es como
+    esta redactada la tabla de reglas original.
     """
     if temp <= TEMPERATURE_TABLE[0][0]:
         return TEMPERATURE_TABLE[0][1]
@@ -49,27 +50,14 @@ def temperature_factor_discrete(temp):
     return TEMPERATURE_TABLE[-1][1]
 
 
-def temperature_factor_continuous(temp):
-    """
-    Modelo AJUSTADO (punto 5 de la guia: "ajuste el modelo y llene de nuevo
-    la tabla"). Se observa que la tabla original es en realidad una recta:
-    Tf baja 0.05 por cada grado que sube la temperatura desde 10C.
-    Esto permite calcular Tf para CUALQUIER temperatura, no solo las que
-    aparecen en la tabla (ej. 15C o 17C), sin perder los valores limite.
-    """
-    tf = 1.00 - 0.05 * (temp - 10)
-    return min(1.00, max(0.10, tf))  # se mantiene dentro de [0.10, 1.00]
-
-
-def compute_index(humidity, cloudiness, temp, tf_function):
+def compute_index(humidity, cloudiness, temp):
     """
     Aplica la formula del indice para una hora puntual.
-    tf_function decide si se usa el modelo discreto o el ajustado.
     Devuelve los 4 valores (H, N, Tf, Indice) para poder mostrarlos despues.
     """
     h = normalize(humidity)
     n = normalize(cloudiness)
-    tf = tf_function(temp)
+    tf = temperature_factor(temp)
     index = W_H * h + W_N * n + W_TF * tf
     return h, n, tf, index
 
@@ -99,10 +87,10 @@ class HourRecord:
         self.temp = temp
         self.h = self.n = self.tf = self.index = self.state = None
 
-    def process(self, tf_function):
+    def process(self):
         """Calcula H, N, Tf, indice y estado para esta hora y los guarda en el objeto."""
         self.h, self.n, self.tf, self.index = compute_index(
-            self.humidity, self.cloudiness, self.temp, tf_function
+            self.humidity, self.cloudiness, self.temp
         )
         self.state = classify_state(self.index)
         return self

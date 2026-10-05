@@ -20,15 +20,11 @@ BASE_DATA = [
 
 
 class RainSimulationController:
-    """Recibe los datos crudos y los procesa con la funcion Tf que se le indique."""
+    """Recibe los datos crudos y le pide al modelo que procese cada hora."""
 
     def __init__(self, data):
         self.data = data
 
-    def run(self, tf_function):
-        """
-        Crea un HourRecord por cada fila y lo procesa.
-        tf_function = temperature_factor_discrete o temperature_factor_continuous,
-        segun que version del modelo se quiera correr.
-        """
-        return [HourRecord(*row).process(tf_function) for row in self.data]
+    def run(self):
+        """Crea un HourRecord por cada fila de BASE_DATA y lo procesa."""
+        return [HourRecord(*row).process() for row in self.data]
