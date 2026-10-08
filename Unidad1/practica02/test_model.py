@@ -71,5 +71,31 @@ class EstimateParametersTest(unittest.TestCase):
         self.assertEqual(params["time"], 3)
 
 
+class ShortDataTest(unittest.TestCase):
+    """Con pocos datos sigma da 0: la simulacion completa no debe caerse."""
+
+    def test_main_runs_with_two_points(self):
+        import os
+        import tempfile
+        import main
+        cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            os.chdir(tmp)
+            try:
+                main.main([1000, 1100])
+                self.assertTrue(os.path.exists("efecto_sigma.png"))
+                self.assertTrue(os.path.exists("efecto_dt.png"))
+            finally:
+                os.chdir(cwd)
+
+    def test_estimate_parameters_rejects_single_point(self):
+        with self.assertRaises(ValueError):
+            estimate_parameters([1000])
+
+    def test_estimate_parameters_rejects_zero_population(self):
+        with self.assertRaises(ValueError):
+            estimate_parameters([1000, 0, 500])
+
+
 if __name__ == "__main__":
     unittest.main()

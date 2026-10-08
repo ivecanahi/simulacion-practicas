@@ -7,9 +7,12 @@ Repositorio de prácticas de la asignatura **Simulación** (Ciclo 5, Carrera de 
 ```
 .
 ├── Unidad1/
-│   └── practica01/   # Construcción y simulación computacional de un modelo matemático
+│   ├── practica01/   # Construcción y simulación computacional de un modelo matemático
+│   └── practica02/   # Comparación de modelos determinísticos, estocásticos, discretos y continuos
 ├── Unidad2/
 ├── Unidad3/
+├── assets/           # Logo y estilo compartidos por los reportes técnicos
+├── tools/            # build_reports.sh: genera los reportes PDF
 ├── requirements.txt
 └── .gitignore
 ```
@@ -36,4 +39,12 @@ cd Unidad1/practica01
 python3 main.py
 ```
 
-Cada práctica tiene su propio `README.md` con el objetivo, el modelo usado y la interpretación de resultados.
+Cada práctica tiene su propio `README.md` (descripción, tecnologías, instalación, configuración, uso, estructura e información adicional) y su reporte técnico `Reporte_Practica_NN.pdf`, basado en la plantilla de la carrera.
+
+## Reportes técnicos
+
+El reporte de cada práctica se escribe en `reporte/reporte.html` y se genera en PDF con Chrome:
+
+```bash
+tools/build_reports.sh
+```

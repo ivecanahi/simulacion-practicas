@@ -46,4 +46,7 @@ def main(data):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    main([float(x) for x in args] if args else BASE_DATA)
+    try:
+        main([float(x) for x in args] if args else BASE_DATA)
+    except ValueError as error:
+        sys.exit(f"Error en los datos de entrada: {error}")

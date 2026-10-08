@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reporte Técnico — Práctica 01</title>
+<link rel="stylesheet" href="../../../assets/reporte.css">
+</head>
+<body>
+<table class="page">
+<thead><tr><td>
+  <div class="header">
+    <img src="../../../assets/logo_unl.png" alt="Universidad Nacional de Loja">
+    <span>FEIRNNR - Carrera de Computación</span>
+  </div>
+</td></tr></thead>
+<tbody><tr><td>
+
+<h1>Reporte Técnico de Actividades<br>Práctico-Experimentales Nro. 001</h1>
+
+<h2>1.&nbsp; Datos de Identificación del Estudiante y la Práctica</h2>
+<table class="ident">
+  <tr><td>Nombre del estudiante(s)</td><td>Ivett Anahi Zaragocin Mora</td></tr>
+  <tr><td>Asignatura</td><td>Simulación</td></tr>
+  <tr><td>Ciclo</td><td>5</td></tr>
+  <tr><td>Unidad</td><td>U1: Introducción a la Simulación</td></tr>
+  <tr><td>Resultado de aprendizaje de la unidad</td><td>R1. Aplica análisis estadísticos de los datos de la Simulación para mejorar la calidad de los resultados, bajo los principios de solidaridad, transparencia, responsabilidad y honestidad.</td></tr>
+  <tr><td>Práctica Nro.</td><td>01</td></tr>
+  <tr><td>Título de la Práctica</td><td>Construcción y simulación computacional de un modelo matemático</td></tr>
+  <tr><td>Nombre del Docente</td><td>José O. Guamán Q.</td></tr>
+  <tr><td>Fecha</td><td>01 y 02 de octubre de 2026</td></tr>
+  <tr><td>Horario</td><td>Jueves 10h30 a 11h30 · Viernes 07h30 a 09h30</td></tr>
+  <tr><td>Lugar</td><td>Aula</td></tr>
+  <tr><td>Tiempo planificado en el Sílabo</td><td>3 horas</td></tr>
+</table>
+
+<h2>2.&nbsp; Objetivo(s) de la Práctica</h2>
+<p>Comprender el proceso de construcción de un modelo matemático y analizar su comportamiento mediante Python.</p>
+<ol>
+  <li>Identificar variables, parámetros y relaciones matemáticas de un sistema.</li>
+  <li>Implementar un modelo matemático en Python.</li>
+  <li>Analizar gráficamente la influencia de los parámetros.</li>
+</ol>
+
+<h2>3.&nbsp; Materiales, Reactivos, Equipos y Herramientas</h2>
+<h3>Materiales y reactivos:</h3>
+<ul class="square">
+  <li>NumPy 1.26 (cálculo numérico).</li>
+  <li>Matplotlib 3.9 (gráficas).</li>
+</ul>
+<h3>Equipos y herramientas:</h3>
+<ul class="square">
+  <li>Computador con sistema operativo Linux.</li>
+  <li>Python 3.12.</li>
+  <li>Editor de código y Git/GitHub para el control de versiones.</li>
+</ul>
+
+<h2>4.&nbsp; Marco Conceptual</h2>
+<p><b>Modelo matemático.</b> Es una representación simplificada de un fenómeno real mediante variables, parámetros y relaciones (ecuaciones o reglas) que permite explicar o predecir su comportamiento. La <b>simulación</b> consiste en ejecutar ese modelo en un computador para observar cómo responde ante distintas entradas.</p>
+<p><b>Variables y parámetros.</b> Las variables cambian con cada observación del sistema; en esta práctica son la humedad, la nubosidad y la temperatura de cada hora. Los parámetros son valores fijos que definen el modelo: los pesos de cada variable y los umbrales de la tabla de reglas.</p>
+<p><b>Normalización.</b> Para combinar magnitudes distintas se llevan a una escala común de 0 a 1. La humedad y la nubosidad, expresadas en porcentaje, se dividen para 100. La temperatura se transforma en el factor <i>T<sub>f</sub></i> mediante la tabla de la guía: a menor temperatura, mayor factor.</p>
+<p><b>Promedio ponderado.</b> El índice de lluvia es una combinación lineal de las tres variables normalizadas. Si los pesos suman 1, el índice también queda entre 0 y 1 y puede interpretarse como una probabilidad relativa:</p>
+<p class="formula">I = 0.5·H + 0.3·N + 0.2·T<sub>f</sub></p>
+<p>El valor de <i>I</i> se clasifica con la tabla de reglas: <i>I</i> &lt; 0.40 sin lluvia; 0.40 ≤ <i>I</i> &lt; 0.60 baja posibilidad; 0.60 ≤ <i>I</i> &lt; 0.75 lluvia probable; <i>I</i> ≥ 0.75 lluvia.</p>
+
+<h2>5.&nbsp; Procedimiento / Metodología Ejecutada</h2>
+<ol>
+  <li>Se identificaron las variables (humedad, nubosidad y temperatura), los parámetros (pesos 0.5, 0.3 y 0.2, tabla de <i>T<sub>f</sub></i> y umbrales) y la relación matemática (promedio ponderado).</li>
+  <li>Se implementó el modelo en Python con arquitectura Modelo-Vista-Controlador: <code>model.py</code> contiene la fórmula, la tabla de <i>T<sub>f</sub></i> y la clasificación; <code>controller.py</code> contiene los datos de la guía; <code>view.py</code> genera las tablas y gráficas; <code>main.py</code> une el flujo.</li>
+  <li>Para temperaturas que no aparecen en la tabla (15 °C y 17 °C) se tomó el siguiente escalón igual o mayor, con la misma lógica con que está redactada la tabla (≤ 10 °C, ≥ 28 °C).</li>
+  <li>Se verificó el modelo con el ejemplo de la guía (humedad 90 %, nubosidad 80 %, 18 °C), que da <i>I</i> = 0.81.</li>
+  <li>Se calculó el índice para las nueve horas de la tabla de la guía.</li>
+  <li>Se ajustó el modelo cambiando solo los pesos a 0.4 / 0.3 / 0.3 (siguen sumando 1), dando más peso a la temperatura, y se volvió a llenar la tabla.</li>
+  <li>Se generaron cuatro gráficas para analizar la influencia de cada parámetro y se compararon ambos modelos.</li>
+</ol>
+
+<h2>6.&nbsp; Resultados</h2>
+<h3>Modelo original (pesos 0.5 / 0.3 / 0.2)</h3>
+<table class="data">
+  <tr><th>Hora</th><th>Humedad</th><th>Nubosidad</th><th>Temp.</th><th>H</th><th>N</th><th>T<sub>f</sub></th><th>Índice</th><th class="left">Estado</th></tr>
+  <tr><td>06:00</td><td>65</td><td>40</td><td>14</td><td>0.65</td><td>0.40</td><td>0.80</td><td>0.60</td><td class="left">Lluvia probable</td></tr>
+  <tr><td>08:00</td><td>70</td><td>50</td><td>16</td><td>0.70</td><td>0.50</td><td>0.70</td><td>0.64</td><td class="left">Lluvia probable</td></tr>
+  <tr><td>10:00</td><td>68</td><td>45</td><td>18</td><td>0.68</td><td>0.45</td><td>0.60</td><td>0.59</td><td class="left">Baja posibilidad</td></tr>
+  <tr><td>12:00</td><td>60</td><td>30</td><td>22</td><td>0.60</td><td>0.30</td><td>0.40</td><td>0.47</td><td class="left">Baja posibilidad</td></tr>
+  <tr><td>14:00</td><td>75</td><td>70</td><td>20</td><td>0.75</td><td>0.70</td><td>0.50</td><td>0.68</td><td class="left">Lluvia probable</td></tr>
+  <tr><td>16:00</td><td>85</td><td>85</td><td>18</td><td>0.85</td><td>0.85</td><td>0.60</td><td>0.80</td><td class="left">Lluvia</td></tr>
+  <tr><td>18:00</td><td>92</td><td>95</td><td>16</td><td>0.92</td><td>0.95</td><td>0.70</td><td>0.89</td><td class="left">Lluvia</td></tr>
+  <tr><td>20:00</td><td>88</td><td>90</td><td>17</td><td>0.88</td><td>0.90</td><td>0.60</td><td>0.83</td><td class="left">Lluvia</td></tr>
+  <tr><td>22:00</td><td>80</td><td>75</td><td>15</td><td>0.80</td><td>0.75</td><td>0.70</td><td>0.77</td><td class="left">Lluvia</td></tr>
+</table>
+
+<h3>Modelo ajustado (pesos 0.4 / 0.3 / 0.3)</h3>
+<table class="data">
+  <tr><th>Hora</th><th>Humedad</th><th>Nubosidad</th><th>Temp.</th><th>H</th><th>N</th><th>T<sub>f</sub></th><th>Índice</th><th class="left">Estado</th></tr>
+  <tr><td>06:00</td><td>65</td><td>40</td><td>14</td><td>0.65</td><td>0.40</td><td>0.80</td><td>0.62</td><td class="left">Lluvia probable</td></tr>
+  <tr><td>08:00</td><td>70</td><td>50</td><td>16</td><td>0.70</td><td>0.50</td><td>0.70</td><td>0.64</td><td class="left">Lluvia probable</td></tr>
+  <tr><td>10:00</td><td>68</td><td>45</td><td>18</td><td>0.68</td><td>0.45</td><td>0.60</td><td>0.59</td><td class="left">Baja posibilidad</td></tr>
+  <tr><td>12:00</td><td>60</td><td>30</td><td>22</td><td>0.60</td><td>0.30</td><td>0.40</td><td>0.45</td><td class="left">Baja posibilidad</td></tr>
+  <tr><td>14:00</td><td>75</td><td>70</td><td>20</td><td>0.75</td><td>0.70</td><td>0.50</td><td>0.66</td><td class="left">Lluvia probable</td></tr>
+  <tr><td>16:00</td><td>85</td><td>85</td><td>18</td><td>0.85</td><td>0.85</td><td>0.60</td><td>0.77</td><td class="left">Lluvia</td></tr>
+  <tr><td>18:00</td><td>92</td><td>95</td><td>16</td><td>0.92</td><td>0.95</td><td>0.70</td><td>0.86</td><td class="left">Lluvia</td></tr>
+  <tr><td>20:00</td><td>88</td><td>90</td><td>17</td><td>0.88</td><td>0.90</td><td>0.60</td><td>0.80</td><td class="left">Lluvia</td></tr>
+  <tr><td>22:00</td><td>80</td><td>75</td><td>15</td><td>0.80</td><td>0.75</td><td>0.70</td><td>0.76</td><td class="left">Lluvia</td></tr>
+</table>
+
+<figure>
+  <img src="../indice_lluvia.png" alt="Índice de lluvia durante el día">
+  <figcaption>Figura 1. Evolución del índice I durante el día: modelo original frente al ajustado, sobre las franjas de la tabla de reglas.</figcaption>
+</figure>
+<p>El índice es bajo al mediodía (0.47 a las 12:00, cuando hace más calor y hay menos nubes) y sube por la tarde hasta su máximo a las 18:00 (0.89), cuando la humedad y la nubosidad superan el 90 %. Desde las 16:00 el modelo predice lluvia en ambas versiones.</p>
+
+<figure>
+  <img src="../factor_temperatura.png" alt="Factor de temperatura">
+  <figcaption>Figura 2. Factor de temperatura T<sub>f</sub> en función de la temperatura (tabla de la guía).</figcaption>
+</figure>
+
+<figure>
+  <img src="../variables_entrada.png" alt="Variables de entrada">
+  <figcaption>Figura 3. Variables normalizadas H, N y T<sub>f</sub> a lo largo del día.</figcaption>
+</figure>
+
+<figure>
+  <img src="../contribucion_variables.png" alt="Contribución de cada variable">
+  <figcaption>Figura 4. Aporte de cada término (peso × variable) al índice, para cada modelo.</figcaption>
+</figure>
+<p><b>Influencia de los parámetros.</b> La humedad es la variable que más aporta, porque tiene el peso más alto. Al pasar 0.1 de peso de la humedad a la temperatura, el índice baja ligeramente en casi todas las horas (por ejemplo, a las 16:00 pasa de 0.80 a 0.77). Esto ocurre porque <i>T<sub>f</sub></i> es menor que <i>H</i> en esas horas. El estado final casi no cambia, porque los datos del día son consistentemente húmedos y nublados. El modelo es más sensible a la humedad y a la nubosidad que a la temperatura.</p>
+
+<h2>7.&nbsp; Preguntas de Control</h2>
+<p><i>Nota: las preguntas 3 a 5 se refieren al modelo de crecimiento exponencial P(t) = P<sub>0</sub>·e<sup>rt</sup> y se responden en términos generales.</i></p>
+<ol>
+  <li><p class="question">¿Qué es un modelo matemático?</p>
+  <p>Es una representación simplificada de un fenómeno real mediante variables, parámetros y relaciones matemáticas, que permite explicar o predecir su comportamiento. En esta práctica, la fórmula del índice representa la posibilidad de lluvia a partir de tres variables atmosféricas.</p></li>
+  <li><p class="question">¿Cuál es la diferencia entre variable y parámetro?</p>
+  <p>Una variable cambia con cada observación del sistema (H, N y T<sub>f</sub> cambian hora a hora). Un parámetro es un valor fijo que define la forma del modelo durante la simulación (los pesos 0.5, 0.3 y 0.2 y los umbrales 0.40, 0.60 y 0.75). Cambiar un parámetro significa cambiar el modelo, como se hizo en el modelo ajustado.</p></li>
+  <li><p class="question">¿Qué representa P₀?</p>
+  <p>Es la condición inicial: el valor de la magnitud (por ejemplo, la población) en el instante t = 0, desde el cual el modelo calcula su evolución.</p></li>
+  <li><p class="question">¿Qué ocurre cuando r &lt; 0?</p>
+  <p>El término e<sup>rt</sup> disminuye con el tiempo, por lo que la magnitud decrece de forma exponencial y se acerca a 0 sin llegar a ser negativa.</p></li>
+  <li><p class="question">¿Qué limitaciones tiene el modelo exponencial?</p>
+  <p>Supone una tasa constante y recursos ilimitados, por lo que crece sin límite. No considera factores externos que frenan el proceso (capacidad de carga, competencia, eventos aleatorios), así que solo es realista en intervalos cortos.</p></li>
+</ol>
+
+<h2>8.&nbsp; Conclusiones</h2>
+<ul class="square">
+  <li>Construir un modelo matemático exige identificar primero las variables, los parámetros y la relación entre ellos. Con eso definido, la implementación en Python es directa.</li>
+  <li>La normalización a 0–1 y los pesos que suman 1 hacen que el índice sea comparable entre horas e interpretable con la tabla de reglas.</li>
+  <li>El modelo predice lluvia desde las 16:00 hasta las 22:00, cuando la humedad y la nubosidad son altas y la temperatura baja.</li>
+  <li>Redistribuir los pesos modifica el valor del índice pero, con estos datos, casi no cambia la clasificación. El modelo es robusto ante cambios pequeños en los parámetros.</li>
+</ul>
+
+<h2>9.&nbsp; Recomendaciones</h2>
+<ul class="square">
+  <li>Validar los pesos con datos meteorológicos reales (horas en que efectivamente llovió) en lugar de fijarlos a criterio.</li>
+  <li>Interpolar el factor de temperatura para valores intermedios, en vez de usar escalones, para evitar saltos bruscos en el índice.</li>
+  <li>Separar el modelo de la presentación (arquitectura MVC) facilita probar distintos pesos sin tocar el resto del programa.</li>
+</ul>
+
+<h2>10.&nbsp; Bibliografía / Referencias</h2>
+<div class="refs">
+  <p>[1] J. O. Guamán Q., “Diapositivas semana 1 – Introducción a la Simulación,” Universidad Nacional de Loja, 2026.</p>
+  <p>[2] A. M. Law, <i>Simulation Modeling and Analysis</i>, 5th ed. New York, NY, USA: McGraw-Hill, 2015.</p>
+  <p>[3] C. R. Harris <i>et al.</i>, “Array programming with NumPy,” <i>Nature</i>, vol. 585, pp. 357–362, 2020.</p>
+  <p>[4] J. D. Hunter, “Matplotlib: A 2D graphics environment,” <i>Computing in Science &amp; Engineering</i>, vol. 9, no. 3, pp. 90–95, 2007.</p>
+</div>
+
+<h2 class="page-break">11.&nbsp; Anexos</h2>
+<h3>Código fuente</h3>
+<p>El código completo está en el repositorio <b>github.com/ivecanahi/simulacion-practicas</b>, carpeta <code>Unidad1/practica01</code>. Se ejecuta con:</p>
+<pre>pip install -r requirements.txt
+cd Unidad1/practica01
+python3 main.py</pre>
+<p>Fragmento principal del modelo (<code>model.py</code>):</p>
+<pre>def compute_index(humidity, cloudiness, temp, weights):
+    w_h, w_n, w_tf = weights
+    h = normalize(humidity)
+    n = normalize(cloudiness)
+    tf = temperature_factor(temp)
+    index = w_h * h + w_n * n + w_tf * tf
+    return h, n, tf, index</pre>
+
+
+</td></tr></tbody>
+</table>
+</body>
+</html>

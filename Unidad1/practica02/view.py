@@ -165,7 +165,10 @@ class ChartView:
     def plot_noise(data, scenarios, base, output_file):
         """Efecto de sigma: varias corridas estocasticas por nivel de ruido."""
         sigmas = list(scenarios)
-        fig, axes = plt.subplots(1, len(sigmas), figsize=(14, 5.2), sharey=True)
+        # squeeze=False: si sigma es 0 los tres niveles se juntan en uno y
+        # subplots devolveria un solo Axes en lugar de una lista.
+        fig, axes = plt.subplots(1, len(sigmas), figsize=(14, 5.2), sharey=True, squeeze=False)
+        axes = axes[0]
         t_base, p_base = base
         for ax, sigma in zip(axes, sigmas):
             runs = scenarios[sigma]

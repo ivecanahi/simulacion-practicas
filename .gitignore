@@ -6,3 +6,5 @@ venv/
 
 # Guías firmadas por el docente: contienen firma y QR personales, no se publican.
 *.pdf
+# Reportes técnicos de cada práctica: sí se publican.
+!Unidad*/practica*/Reporte_Practica_*.pdf

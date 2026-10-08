@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reporte Técnico — Práctica 02</title>
+<link rel="stylesheet" href="../../../assets/reporte.css">
+</head>
+<body>
+<table class="page">
+<thead><tr><td>
+  <div class="header">
+    <img src="../../../assets/logo_unl.png" alt="Universidad Nacional de Loja">
+    <span>FEIRNNR - Carrera de Computación</span>
+  </div>
+</td></tr></thead>
+<tbody><tr><td>
+
+<h1>Reporte Técnico de Actividades<br>Práctico-Experimentales Nro. 002</h1>
+
+<h2>1.&nbsp; Datos de Identificación del Estudiante y la Práctica</h2>
+<table class="ident">
+  <tr><td>Nombre del estudiante(s)</td><td>Ivett Anahi Zaragocin Mora</td></tr>
+  <tr><td>Asignatura</td><td>Simulación</td></tr>
+  <tr><td>Ciclo</td><td>5</td></tr>
+  <tr><td>Unidad</td><td>U1: Introducción a la Simulación</td></tr>
+  <tr><td>Resultado de aprendizaje de la unidad</td><td>R1. Aplica análisis estadísticos de los datos de la Simulación para mejorar la calidad de los resultados, bajo los principios de solidaridad, transparencia, responsabilidad y honestidad.</td></tr>
+  <tr><td>Práctica Nro.</td><td>02</td></tr>
+  <tr><td>Título de la Práctica</td><td>Comparación de modelos determinísticos, estocásticos, discretos y continuos</td></tr>
+  <tr><td>Nombre del Docente</td><td>José O. Guamán Q.</td></tr>
+  <tr><td>Fecha</td><td>08 y 09 de octubre de 2026</td></tr>
+  <tr><td>Horario</td><td>Jueves 10h30 a 11h30 · Viernes 07h30 a 09h30</td></tr>
+  <tr><td>Lugar</td><td>Aula</td></tr>
+  <tr><td>Tiempo planificado en el Sílabo</td><td>3 horas</td></tr>
+</table>
+
+<h2>2.&nbsp; Objetivo(s) de la Práctica</h2>
+<p>Diferenciar los principales paradigmas de simulación mediante la construcción de modelos computacionales.</p>
+<ol>
+  <li>Implementar un modelo determinístico y uno estocástico.</li>
+  <li>Comparar modelos discretos y continuos.</li>
+  <li>Analizar el efecto de la aleatoriedad sobre los resultados.</li>
+</ol>
+
+<h2>3.&nbsp; Materiales, Reactivos, Equipos y Herramientas</h2>
+<h3>Materiales y reactivos:</h3>
+<ul class="square">
+  <li>Python 3.12.</li>
+  <li>NumPy 1.26 (cálculo numérico y generación de números aleatorios).</li>
+  <li>Matplotlib 3.9 (gráficas).</li>
+</ul>
+<h3>Equipos y herramientas:</h3>
+<ul class="square">
+  <li>Computador con sistema operativo Linux.</li>
+  <li>Editor de código y Git/GitHub para el control de versiones.</li>
+</ul>
+
+<h2>4.&nbsp; Marco Conceptual</h2>
+<p>Un modelo de simulación representa el comportamiento de un sistema mediante variables, parámetros, ecuaciones y reglas. En esta práctica el sistema de estudio es el <b>crecimiento poblacional</b>, que se modela de cuatro formas.</p>
+<p><b>Modelo determinístico.</b> No usa aleatoriedad: con los mismos parámetros siempre produce el mismo resultado. Se usa el crecimiento exponencial, donde <i>P<sub>0</sub></i> es la población inicial, <i>r</i> la tasa de crecimiento y <i>t</i> el tiempo:</p>
+<p class="formula">P(t) = P<sub>0</sub>·e<sup>rt</sup></p>
+<p><b>Modelo discreto.</b> La población cambia solo en intervalos de tiempo definidos (períodos enteros):</p>
+<p class="formula">P<sub>t+1</sub> = P<sub>t</sub> + r·P<sub>t</sub></p>
+<p><b>Modelo estocástico.</b> Incorpora una variable aleatoria con distribución normal de media 0, donde <i>σ</i> representa el nivel de variabilidad del sistema. Cada ejecución produce un resultado distinto:</p>
+<p class="formula">P<sub>t+1</sub> = P<sub>t</sub> + r·P<sub>t</sub> + ε<sub>t</sub>, &nbsp;&nbsp; ε<sub>t</sub> ~ N(0, σ²)</p>
+<p><b>Modelo continuo.</b> Supone que la población cambia en todo instante, según la ecuación diferencial <i>dP/dt = rP</i>. Se resuelve numéricamente con el <b>método de Euler</b>, donde Δt es el tamaño del paso:</p>
+<p class="formula">P<sub>t+Δt</sub> = P<sub>t</sub> + Δt·(r·P<sub>t</sub>)</p>
+
+<h2>5.&nbsp; Procedimiento / Metodología Ejecutada</h2>
+<ol>
+  <li>Se tomaron los datos de la guía: [1000, 1100, 1250, 1400, 1600, 1850, 2100], que representan la población observada en 7 períodos.</li>
+  <li>A partir de los datos se estimaron los parámetros:
+    <ul>
+      <li><i>P<sub>0</sub></i> = 1000 (primer dato).</li>
+      <li><i>r</i> = 0.1318, promedio de la tasa de crecimiento por período (P<sub>t+1</sub> − P<sub>t</sub>)/P<sub>t</sub>.</li>
+      <li><i>σ</i> = 24.50, desviación estándar del residuo entre los datos y la predicción del modelo discreto.</li>
+      <li>tiempo = 6 períodos y Δt = 0.1 para el modelo continuo.</li>
+    </ul></li>
+  <li>Se implementaron los cuatro modelos en Python siguiendo el pseudocódigo de la guía, con arquitectura Modelo-Vista-Controlador. En el estocástico, si la población queda negativa se fija en 0. Se usó una semilla fija (42) para que las corridas sean reproducibles.</li>
+  <li>Se escribieron pruebas unitarias que verifican cada fórmula: por ejemplo, el estocástico con σ = 0 es igual al discreto, y Euler con Δt = 1 también es igual al discreto.</li>
+  <li>Se ejecutaron los cuatro modelos y se compararon con los datos mediante el error medio absoluto (MAE) y la raíz del error cuadrático medio (RMSE).</li>
+  <li>Se analizaron tres escenarios: distintas tasas <i>r</i> (positivas y negativas), distintos niveles de ruido σ (30 corridas cada uno) y distintos pasos Δt.</li>
+</ol>
+
+<h2>6.&nbsp; Resultados</h2>
+<h3>Población por período</h3>
+<table class="data">
+  <tr><th>t</th><th>Datos</th><th>Determinístico</th><th>Discreto</th><th>Estocástico</th><th>Continuo (Euler)</th></tr>
+  <tr><td>0</td><td>1000</td><td>1000.0</td><td>1000.0</td><td>1000.0</td><td>1000.0</td></tr>
+  <tr><td>1</td><td>1100</td><td>1140.8</td><td>1131.8</td><td>1139.2</td><td>1139.9</td></tr>
+  <tr><td>2</td><td>1250</td><td>1301.5</td><td>1280.9</td><td>1263.9</td><td>1299.3</td></tr>
+  <tr><td>3</td><td>1400</td><td>1484.8</td><td>1449.7</td><td>1448.8</td><td>1481.0</td></tr>
+  <tr><td>4</td><td>1600</td><td>1694.0</td><td>1640.7</td><td>1662.7</td><td>1688.1</td></tr>
+  <tr><td>5</td><td>1850</td><td>1932.5</td><td>1856.9</td><td>1834.0</td><td>1924.2</td></tr>
+  <tr><td>6</td><td>2100</td><td>2204.7</td><td>2101.6</td><td>2043.8</td><td>2193.4</td></tr>
+</table>
+
+<h3>Error frente a los datos</h3>
+<table class="data">
+  <tr><th class="left">Modelo</th><th>MAE</th><th>RMSE</th></tr>
+  <tr><td class="left">Determinístico</td><td>65.49</td><td>73.81</td></tr>
+  <tr><td class="left"><b>Discreto</b></td><td><b>23.07</b></td><td><b>29.61</b></td></tr>
+  <tr><td class="left">Estocástico</td><td>33.83</td><td>40.47</td></tr>
+  <tr><td class="left">Continuo (Euler)</td><td>60.85</td><td>68.22</td></tr>
+</table>
+
+<figure>
+  <img src="../comparacion_modelos.png" alt="Comparación de los cuatro modelos">
+  <figcaption>Figura 1. Los cuatro modelos frente a los datos observados.</figcaption>
+</figure>
+<p><b>Interpretación.</b> El modelo discreto es el que mejor se ajusta a los datos (MAE 23.07), porque los datos son observaciones por período y <i>r</i> se estimó como tasa por período; su solución cerrada es P<sub>t</sub> = P<sub>0</sub>(1 + r)<sup>t</sup>. El determinístico y el continuo sobreestiman la población (≈ 2200 frente a 2100 en t = 6): con la misma <i>r</i>, e<sup>r</sup> = 1.1409 es mayor que 1 + r = 1.1318, porque el crecimiento continuo se acumula a cada instante. La tasa continua equivalente sería ln(1 + r) ≈ 0.1238.</p>
+
+<figure>
+  <img src="../influencia_r.png" alt="Influencia de r">
+  <figcaption>Figura 2. Influencia de la tasa r: crecimiento (r &gt; 0), equilibrio (r = 0) y decrecimiento (r &lt; 0).</figcaption>
+</figure>
+<p><b>Influencia de r.</b> La tasa determina la dirección y la velocidad del cambio. Con r &gt; 0 la población crece de forma exponencial (2102 con r = 0.1318; 2986 con r = 0.20). Con r = 0 se mantiene constante, y con r &lt; 0 decrece hacia 0 (262 con r = −0.20). Como el crecimiento es exponencial, una diferencia pequeña en <i>r</i> se amplifica con el tiempo.</p>
+
+<figure>
+  <img src="../efecto_sigma.png" alt="Efecto del ruido sigma">
+  <figcaption>Figura 3. Efecto del nivel de ruido σ: 30 corridas del modelo estocástico para σ = 12.3, 24.5 y 98.0.</figcaption>
+</figure>
+<p><b>Efecto de la aleatoriedad.</b> Con σ pequeño las corridas casi coinciden con el modelo discreto. Al aumentar σ, las trayectorias se separan cada vez más: la desviación estándar de la población final pasa de 28 a 84 y a 381. Con σ = 98 incluso aparecen corridas que decrecen temporalmente aunque r &gt; 0. Sin embargo, el promedio de las corridas se mantiene cerca del discreto, porque el ruido tiene media 0.</p>
+
+<figure>
+  <img src="../efecto_dt.png" alt="Efecto de dt">
+  <figcaption>Figura 4. Efecto del tamaño de paso Δt en el modelo continuo, frente a la solución exacta.</figcaption>
+</figure>
+<p><b>Discreto frente a continuo.</b> Con Δt = 1, el método de Euler es idéntico al modelo discreto (error final 103.2 frente a la solución exacta). Al reducir Δt el error disminuye: 54.3 con Δt = 0.5, 11.4 con Δt = 0.1 y 1.1 con Δt = 0.01. Es decir, Euler converge al modelo continuo exacto cuando Δt tiende a 0.</p>
+
+<h2>7.&nbsp; Preguntas de Control</h2>
+<ol>
+  <li><p class="question">¿Qué representa el arreglo de entrada?</p>
+  <p>La población observada del sistema real en 7 períodos consecutivos. De él se obtienen los parámetros P<sub>0</sub>, r y σ, y sirve como referencia para medir el error de cada modelo.</p></li>
+  <li><p class="question">¿Cuál es la diferencia entre un modelo determinístico y uno estocástico?</p>
+  <p>El determinístico siempre produce el mismo resultado con los mismos parámetros. El estocástico incluye una variable aleatoria (ε), por lo que cada ejecución da un resultado distinto y debe analizarse con varias corridas (promedio y dispersión).</p></li>
+  <li><p class="question">¿Qué efecto produce modificar la tasa (r)?</p>
+  <p>Controla la dirección y la velocidad del cambio: una r mayor produce un crecimiento más rápido, r = 0 mantiene la población constante y r &lt; 0 produce decrecimiento. Por ser un modelo exponencial, una diferencia pequeña en r se amplifica con el tiempo.</p></li>
+  <li><p class="question">¿Qué representa el parámetro σ?</p>
+  <p>Es la desviación estándar del ruido ε: el nivel de variabilidad o incertidumbre del sistema, causado por factores que el modelo no considera (clima, enfermedades, migración).</p></li>
+  <li><p class="question">¿Qué ocurre cuando aumenta el nivel de ruido?</p>
+  <p>Las trayectorias se separan más entre sí y del modelo sin ruido, y aumenta la incertidumbre del resultado final (de 28 a 381 de desviación al pasar de σ = 12.3 a σ = 98). La tendencia promedio no cambia, porque el ruido tiene media 0.</p></li>
+  <li><p class="question">¿Cuál es la diferencia entre los modelos discreto y continuo?</p>
+  <p>El discreto actualiza la población a saltos, una vez por período. El continuo supone que cambia en todo instante (dP/dt = rP), por lo que, con la misma r, crece un poco más. En el computador el continuo se aproxima con pasos pequeños mediante el método de Euler.</p></li>
+  <li><p class="question">¿Qué función cumple (dt)?</p>
+  <p>Es el tamaño del paso de la aproximación de Euler. Un Δt más pequeño da un resultado más preciso, más cercano a P<sub>0</sub>·e<sup>rt</sup>, a cambio de más cálculos. Con Δt = 1 el modelo continuo se convierte en el discreto.</p></li>
+  <li><p class="question">¿Por qué es importante visualizar los resultados mediante gráficas?</p>
+  <p>Porque permiten ver de un vistazo tendencias, diferencias entre modelos, la dispersión producida por el ruido y el ajuste a los datos, aspectos difíciles de detectar en una tabla de números.</p></li>
+  <li><p class="question">¿Qué modelo presenta comportamiento aleatorio?</p>
+  <p>Solo el modelo estocástico, por el término ε<sub>t</sub> ~ N(0, σ²).</p></li>
+  <li><p class="question">¿Cómo cambia la simulación cuando se introduce un nuevo arreglo de datos?</p>
+  <p>Cambian los parámetros estimados (P<sub>0</sub>, r y σ) y, por lo tanto, todas las curvas. Por ejemplo, con [2100, 1900, 1750, 1600, 1400, 1300, 1150] se obtiene r = −0.0953 y σ = 32.54, y los cuatro modelos muestran decrecimiento. El programa acepta cualquier arreglo por línea de comandos.</p></li>
+</ol>
+
+<h2>8.&nbsp; Conclusiones</h2>
+<ul class="square">
+  <li>Los cuatro paradigmas describen el mismo fenómeno, pero sus supuestos (tiempo discreto o continuo, con o sin aleatoriedad) producen resultados distintos.</li>
+  <li>Para datos observados por período, el modelo discreto es el más adecuado (MAE 23.07). El continuo requiere usar la tasa continua equivalente ln(1 + r) para ser comparable.</li>
+  <li>El método de Euler aproxima el modelo continuo con un error que disminuye al reducir Δt. Con Δt = 1 coincide con el modelo discreto.</li>
+  <li>La aleatoriedad no cambia la tendencia del sistema, sino su incertidumbre. Por eso un modelo estocástico debe evaluarse con muchas corridas y no con una sola.</li>
+</ul>
+
+<h2>9.&nbsp; Recomendaciones</h2>
+<ul class="square">
+  <li>Fijar una semilla aleatoria al simular modelos estocásticos, para que los resultados sean reproducibles y verificables.</li>
+  <li>Estimar r de forma coherente con el tipo de modelo: tasa por período para el discreto y ln(1 + r) para el continuo.</li>
+  <li>Considerar un modelo logístico, con capacidad de carga, para simulaciones a largo plazo, ya que el exponencial crece sin límite.</li>
+  <li>Integrar la visualización en NetLogo mediante pyNetLogo, mencionada en la guía, para observar el comportamiento del sistema de forma interactiva.</li>
+</ul>
+
+<h2>10.&nbsp; Bibliografía / Referencias</h2>
+<div class="refs">
+  <p>[1] J. O. Guamán Q., “Diapositivas semana 2 – Introducción a la Simulación,” Universidad Nacional de Loja, 2026.</p>
+  <p>[2] A. M. Law, <i>Simulation Modeling and Analysis</i>, 5th ed. New York, NY, USA: McGraw-Hill, 2015.</p>
+  <p>[3] J. Banks, J. S. Carson, B. L. Nelson y D. M. Nicol, <i>Discrete-Event System Simulation</i>, 5th ed. Upper Saddle River, NJ, USA: Pearson, 2010.</p>
+  <p>[4] C. R. Harris <i>et al.</i>, “Array programming with NumPy,” <i>Nature</i>, vol. 585, pp. 357–362, 2020.</p>
+  <p>[5] J. D. Hunter, “Matplotlib: A 2D graphics environment,” <i>Computing in Science &amp; Engineering</i>, vol. 9, no. 3, pp. 90–95, 2007.</p>
+</div>
+
+<h2 class="page-break">11.&nbsp; Anexos</h2>
+<h3>Código fuente</h3>
+<p>El código completo está en el repositorio <b>github.com/ivecanahi/simulacion-practicas</b>, carpeta <code>Unidad1/practica02</code>. Se ejecuta con:</p>
+<pre>pip install -r requirements.txt
+cd Unidad1/practica02
+python3 main.py                        # datos de la guía
+python3 main.py 2100 1900 1750 1600    # otro arreglo de datos
+python3 -m unittest test_model.py      # pruebas</pre>
+<p>Fragmento de los modelos estocástico y continuo (<code>model.py</code>):</p>
+<pre>def stochastic_model(p0, r, sigma, time, rng=None):
+    rng = rng if rng is not None else np.random.default_rng()
+    population = [p0]
+    for _ in range(time):
+        noise = rng.normal(0, sigma)
+        current = population[-1]
+        new_population = current + r * current + noise
+        population.append(max(new_population, 0.0))
+    return np.arange(time + 1), np.array(population, dtype=float)
+
+def continuous_model(p0, r, time, dt):
+    steps = int(round(time / dt))
+    t = np.linspace(0, steps * dt, steps + 1)
+    population = [p0]
+    for _ in range(steps):
+        current = population[-1]
+        population.append(current + dt * (r * current))
+    return t, np.array(population, dtype=float)</pre>
+
+
+</td></tr></tbody>
+</table>
+</body>
+</html>

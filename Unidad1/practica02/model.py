@@ -69,6 +69,10 @@ def estimate_parameters(data):
       - time:  numero de periodos (cantidad de datos - 1).
     """
     data = np.asarray(data, dtype=float)
+    if len(data) < 2:
+        raise ValueError("Se necesitan al menos 2 datos para estimar la tasa r.")
+    if np.any(data[:-1] <= 0):
+        raise ValueError("Las poblaciones deben ser mayores que 0 para calcular la tasa r.")
     rates = np.diff(data) / data[:-1]
     r = float(np.mean(rates))
     residuals = data[1:] - (data[:-1] + r * data[:-1])

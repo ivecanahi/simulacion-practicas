@@ -1,17 +1,24 @@
 # Práctica 01 — Construcción y simulación computacional de un modelo matemático
 
-**Objetivo:** comprender el proceso de construcción de un modelo matemático y analizar su comportamiento mediante Python, implementando un modelo de predicción de lluvia a partir de humedad, nubosidad y temperatura.
+## 1. Descripción
 
-## El modelo
+Simula el comportamiento de la atmósfera a lo largo de un día y determina en qué horas existe posibilidad de lluvia. Para cada hora combina humedad, nubosidad y temperatura en un **índice de lluvia** y lo clasifica según la tabla de reglas de la guía.
+
+- **Propósito:** comprender cómo se construye un modelo matemático (variables, parámetros y relaciones) y analizar cómo influyen sus parámetros.
+- **Problema que resuelve:** a partir de datos atmosféricos crudos, predice el estado del clima hora a hora y compara el modelo original con un modelo ajustado.
+
+### El modelo
 
 ```
-I = W_H*H + W_N*N + W_TF*Tf
+I = W_H·H + W_N·N + W_TF·Tf
 ```
 
-- `H` = humedad normalizada (0–1)
-- `N` = nubosidad normalizada (0–1)
-- `Tf` = factor de temperatura, tomado de la tabla de la guía
-- `W_H, W_N, W_TF` = pesos de cada variable. Siempre suman **1**, porque `I` es un promedio ponderado.
+| Símbolo | Significado |
+|---|---|
+| `H` | Humedad normalizada (0–1) |
+| `N` | Nubosidad normalizada (0–1) |
+| `Tf` | Factor de temperatura, tomado de la tabla de la guía |
+| `W_H, W_N, W_TF` | Pesos de cada variable. Suman **1**, porque `I` es un promedio ponderado |
 
 | Índice I | Estado |
 |---|---|
@@ -20,72 +27,100 @@ I = W_H*H + W_N*N + W_TF*Tf
 | 0.60 ≤ I < 0.75 | Lluvia probable |
 | I ≥ 0.75 | Lluvia |
 
-Para temperaturas que no están exactamente en la tabla de `Tf` (ej. 15 °C, 17 °C), se usa el siguiente escalón igual o mayor, siguiendo la misma lógica de "tabla de reglas" con la que está redactada la tabla original (`≤10°C`, `≥28°C`).
+| Modelo | W_H | W_N | W_TF |
+|---|---|---|---|
+| Original (guía) | 0.5 | 0.3 | 0.2 |
+| Ajustado | 0.4 | 0.3 | 0.3 |
 
-## Modelo original vs. modelo ajustado
+El modelo ajustado no cambia la fórmula ni las variables: solo redistribuye los pesos, dándole más peso a la temperatura.
 
-La guía pide ajustar el modelo y volver a llenar la tabla. El ajuste **no** cambia la fórmula ni las variables (siguen siendo H, N, Tf con la misma tabla de temperatura): cambia únicamente los **pesos**, manteniendo que sumen 1.
+## 2. Tecnologías utilizadas
 
-| | W_H | W_N | W_TF | Suma |
-|---|---|---|---|---|
-| Original (de la guía) | 0.5 | 0.3 | 0.2 | 1.0 |
-| Ajustado | 0.4 | 0.3 | 0.3 | 1.0 |
-
-El modelo ajustado le da más peso a la temperatura (`Tf`) y menos a la humedad, para observar cómo responde el índice ante esa redistribución.
-
-## Arquitectura (MVC)
-
-| Archivo | Rol |
+| Tecnología | Uso |
 |---|---|
-| `model.py` | Fórmula del índice (con los dos sets de pesos), tabla de temperatura y clasificación de estado. Sin I/O. |
-| `controller.py` | Datos de entrada (la tabla de la guía) y orquestación: le pide al modelo que procese cada hora con un set de pesos dado. |
-| `view.py` | Tablas por consola y gráficas (`matplotlib`). |
-| `main.py` | Arma el flujo: controller → model → view, para el modelo original y el ajustado. |
+| Python 3.12 | Lenguaje de implementación |
+| NumPy 1.26 | Cálculo numérico |
+| Matplotlib 3.9 | Gráficas |
 
-## Cómo correr
+## 3. Instalación
+
+Desde la raíz del repositorio:
 
 ```bash
-pip install -r ../../requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+## 4. Configuración
+
+No requiere variables de entorno. Los valores del modelo se editan en el código:
+
+| Qué cambiar | Dónde |
+|---|---|
+| Pesos del modelo original y ajustado | `WEIGHTS_ORIGINAL`, `WEIGHTS_ADJUSTED` en `model.py` |
+| Tabla del factor de temperatura | `TEMPERATURE_TABLE` en `model.py` |
+| Datos de entrada (hora, humedad, nubosidad, temperatura) | `BASE_DATA` en `controller.py` |
+
+## 5. Uso
+
+```bash
+cd Unidad1/practica01
 python3 main.py
 ```
 
-Genera cuatro gráficas:
+Imprime en consola la tabla de cada modelo y genera estas gráficas:
 
 | Archivo | Qué muestra |
 |---|---|
-| `indice_lluvia.png` | Índice original vs. ajustado durante el día, sobre las franjas de la tabla de reglas. |
-| `factor_temperatura.png` | Influencia de la temperatura en Tf (función escalonada de la tabla). |
-| `variables_entrada.png` | Evolución de H, N y Tf a lo largo del día. |
-| `contribucion_variables.png` | Aporte de cada término (W·H, W·N, W·Tf) al índice, para cada modelo. |
+| `indice_lluvia.png` | Índice original vs. ajustado durante el día, sobre las franjas de la tabla de reglas |
+| `factor_temperatura.png` | Influencia de la temperatura en Tf |
+| `variables_entrada.png` | Evolución de H, N y Tf a lo largo del día |
+| `contribucion_variables.png` | Aporte de cada término (peso × variable) al índice |
 
-## Resultados
+Ejemplo de salida:
 
-**Modelo original (pesos 0.5 / 0.3 / 0.2):**
+```
+Modelo original (pesos 0.5 / 0.3 / 0.2)
+Hora    Humedad  Nubosidad  Temp      H      N     Tf   Indice  Estado
+----------------------------------------------------------------------
+06:00        65         40    14   0.65   0.40   0.80     0.60  Lluvia probable
+...
+18:00        92         95    16   0.92   0.95   0.70     0.89  Lluvia
+```
 
-| Hora | Humedad | Nubosidad | Temp | H | N | Tf | Índice | Estado |
-|---|---|---|---|---|---|---|---|---|
-| 06:00 | 65 | 40 | 14 | 0.65 | 0.40 | 0.80 | 0.60 | Lluvia probable |
-| 08:00 | 70 | 50 | 16 | 0.70 | 0.50 | 0.70 | 0.64 | Lluvia probable |
-| 10:00 | 68 | 45 | 18 | 0.68 | 0.45 | 0.60 | 0.59 | Baja posibilidad |
-| 12:00 | 60 | 30 | 22 | 0.60 | 0.30 | 0.40 | 0.47 | Baja posibilidad |
-| 14:00 | 75 | 70 | 20 | 0.75 | 0.70 | 0.50 | 0.68 | Lluvia probable |
-| 16:00 | 85 | 85 | 18 | 0.85 | 0.85 | 0.60 | 0.80 | Lluvia |
-| 18:00 | 92 | 95 | 16 | 0.92 | 0.95 | 0.70 | 0.89 | Lluvia |
-| 20:00 | 88 | 90 | 17 | 0.88 | 0.90 | 0.60 | 0.83 | Lluvia |
-| 22:00 | 80 | 75 | 15 | 0.80 | 0.75 | 0.70 | 0.77 | Lluvia |
+## 6. Estructura del proyecto
 
-**Modelo ajustado (pesos 0.4 / 0.3 / 0.3):**
+Arquitectura **MVC (Modelo-Vista-Controlador)**:
 
-| Hora | Humedad | Nubosidad | Temp | H | N | Tf | Índice | Estado |
-|---|---|---|---|---|---|---|---|---|
-| 06:00 | 65 | 40 | 14 | 0.65 | 0.40 | 0.80 | 0.62 | Lluvia probable |
-| 08:00 | 70 | 50 | 16 | 0.70 | 0.50 | 0.70 | 0.64 | Lluvia probable |
-| 10:00 | 68 | 45 | 18 | 0.68 | 0.45 | 0.60 | 0.59 | Baja posibilidad |
-| 12:00 | 60 | 30 | 22 | 0.60 | 0.30 | 0.40 | 0.45 | Baja posibilidad |
-| 14:00 | 75 | 70 | 20 | 0.75 | 0.70 | 0.50 | 0.66 | Lluvia probable |
-| 16:00 | 85 | 85 | 18 | 0.85 | 0.85 | 0.60 | 0.77 | Lluvia |
-| 18:00 | 92 | 95 | 16 | 0.92 | 0.95 | 0.70 | 0.86 | Lluvia |
-| 20:00 | 88 | 90 | 17 | 0.88 | 0.90 | 0.60 | 0.80 | Lluvia |
-| 22:00 | 80 | 75 | 15 | 0.80 | 0.75 | 0.70 | 0.76 | Lluvia |
+```
+practica01/
+├── model.py        # Fórmula del índice, tabla de Tf y clasificación (sin I/O)
+├── controller.py   # Datos de la guía y orquestación del modelo
+├── view.py         # Tablas por consola y gráficas
+├── main.py         # Punto de entrada: controller → model → view
+├── *.png           # Gráficas generadas
+├── reporte/        # Fuente HTML del reporte técnico
+└── Reporte_Practica_01.pdf
+```
 
-Con menos peso en la humedad y más en la temperatura, el índice baja un poco en casi todas las horas (ej. 16:00 pasa de 0.80 a 0.77), aunque el estado final cambia poco porque los datos de este día son consistentemente húmedos y nublados.
+## 7. Información adicional
+
+### Resultados principales
+
+| Hora | Índice original | Índice ajustado | Estado |
+|---|---|---|---|
+| 06:00 | 0.60 | 0.62 | Lluvia probable |
+| 12:00 | 0.47 | 0.45 | Baja posibilidad |
+| 16:00 | 0.80 | 0.77 | Lluvia |
+| 18:00 | 0.89 | 0.86 | Lluvia |
+
+- El modelo predice lluvia desde las 16:00 hasta las 22:00, cuando la humedad y la nubosidad son altas y la temperatura baja.
+- Al pasar peso de la humedad a la temperatura, el índice baja levemente, pero la clasificación casi no cambia.
+
+Las tablas completas, la interpretación y las preguntas de control están en el **[reporte técnico](Reporte_Practica_01.pdf)**.
+
+### Notas
+
+- Para temperaturas que no están en la tabla (15 °C, 17 °C) se usa el siguiente escalón igual o mayor.
+- La guía también pide una versión en Java; este repositorio contiene solo la implementación en Python.

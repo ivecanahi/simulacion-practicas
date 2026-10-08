@@ -1,0 +1,110 @@
+/*
+ * Estilo comun de los reportes tecnicos (replica la plantilla de la UNL).
+ * Se imprime a PDF con Chrome headless; ver tools/build_reports.sh.
+ */
+@page {
+  size: A4;
+  margin: 12mm 22mm 18mm 22mm;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Nimbus Sans", "Nimbus Sans L", Helvetica, Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.38;
+  color: #000;
+  background: #fff;
+}
+
+/* La cabecera va en un <thead> para que Chrome la repita en cada pagina. */
+table.page { width: 100%; border-collapse: collapse; }
+table.page > thead > tr > td,
+table.page > tbody > tr > td { padding: 0; border: 0; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 0.6pt solid #b5b5b5;
+  padding-bottom: 3mm;
+  margin-bottom: 7mm;
+}
+.header img { height: 12mm; }
+.header span { font-size: 9.5pt; }
+
+h1 {
+  text-align: center;
+  font-size: 20pt;
+  line-height: 1.15;
+  margin: 2mm 0 6mm;
+}
+
+h2 {
+  font-size: 13pt;
+  margin: 5mm 0 2mm;
+  break-after: avoid;
+}
+
+h3 {
+  font-size: 10.5pt;
+  margin: 3mm 0 1.5mm;
+  break-after: avoid;
+}
+
+p { margin: 0 0 2mm; text-align: justify; }
+ul, ol { margin: 0 0 2mm; padding-left: 7mm; }
+li { margin-bottom: 1mm; }
+ul.square { list-style: square; }
+
+table.data, table.ident {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2mm 0 3mm;
+  font-size: 9.5pt;
+  break-inside: avoid;
+}
+table.ident td {
+  border: 0.6pt solid #000;
+  padding: 0.6mm 1.5mm;
+  vertical-align: top;
+}
+table.ident td:first-child { width: 47%; font-weight: bold; }
+
+table.data th, table.data td {
+  border: 0.6pt solid #000;
+  padding: 0.8mm 1.5mm;
+  text-align: center;
+}
+table.data th { background: #efefef; }
+table.data td.left, table.data th.left { text-align: left; }
+
+.formula {
+  font-family: "DejaVu Serif", "Nimbus Roman", serif;
+  font-style: italic;
+  text-align: center;
+  margin: 2mm 0 3mm;
+}
+
+pre {
+  font-family: "DejaVu Sans Mono", monospace;
+  font-size: 8.5pt;
+  background: #f5f5f5;
+  border: 0.6pt solid #ccc;
+  padding: 2mm 3mm;
+  white-space: pre-wrap;
+  break-inside: avoid;
+}
+
+figure {
+  margin: 3mm 0 4mm;
+  text-align: center;
+  break-inside: avoid;
+}
+figure img { max-width: 100%; max-height: 92mm; }
+figcaption { font-size: 9pt; margin-top: 1mm; }
+
+.question { font-weight: bold; margin-top: 2.5mm; }
+.refs p { text-align: left; padding-left: 8mm; text-indent: -8mm; }
+.page-break { break-before: page; }
