@@ -22,11 +22,13 @@ def main():
     ConsoleView.show_table("Modelo original (pesos 0.5 / 0.3 / 0.2)", original_records)
     ConsoleView.show_table("Modelo ajustado (pesos 0.4 / 0.3 / 0.3)", adjusted_records)
 
-    ChartView.plot_index(
-        {"Original": original_records, "Ajustado": adjusted_records},
-        "indice_lluvia.png",
-    )
+    records_by_label = {"Original": original_records, "Ajustado": adjusted_records}
+    weights_by_label = {"Original": WEIGHTS_ORIGINAL, "Ajustado": WEIGHTS_ADJUSTED}
+
+    ChartView.plot_index(records_by_label, "indice_lluvia.png")
     ChartView.plot_temperature_factor("factor_temperatura.png")
+    ChartView.plot_input_variables(original_records, "variables_entrada.png")
+    ChartView.plot_contributions(records_by_label, weights_by_label, "contribucion_variables.png")
 
 
 if __name__ == "__main__":

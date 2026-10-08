@@ -49,7 +49,14 @@ pip install -r ../../requirements.txt
 python3 main.py
 ```
 
-Genera `indice_lluvia.png` (índice original vs. ajustado durante el día) y `factor_temperatura.png` (influencia de la temperatura en Tf).
+Genera cuatro gráficas:
+
+| Archivo | Qué muestra |
+|---|---|
+| `indice_lluvia.png` | Índice original vs. ajustado durante el día, sobre las franjas de la tabla de reglas. |
+| `factor_temperatura.png` | Influencia de la temperatura en Tf (función escalonada de la tabla). |
+| `variables_entrada.png` | Evolución de H, N y Tf a lo largo del día. |
+| `contribucion_variables.png` | Aporte de cada término (W·H, W·N, W·Tf) al índice, para cada modelo. |
 
 ## Resultados
 
@@ -82,13 +89,3 @@ Genera `indice_lluvia.png` (índice original vs. ajustado durante el día) y `fa
 | 22:00 | 80 | 75 | 15 | 0.80 | 0.75 | 0.70 | 0.76 | Lluvia |
 
 Con menos peso en la humedad y más en la temperatura, el índice baja un poco en casi todas las horas (ej. 16:00 pasa de 0.80 a 0.77), aunque el estado final cambia poco porque los datos de este día son consistentemente húmedos y nublados.
-
-## Preguntas de control
-
-> Nota: estas preguntas de la guía corresponden a un modelo de **crecimiento exponencial** (`P(t) = P₀·eʳᵗ`), no al modelo de índice de lluvia de esta práctica. Se responden en términos generales de modelado matemático.
-
-1. **¿Qué es un modelo matemático?** Una representación simplificada de un fenómeno real mediante variables, parámetros y relaciones (ecuaciones) que permite predecir o explicar su comportamiento.
-2. **¿Diferencia entre variable y parámetro?** La variable cambia con cada observación (en esta práctica: H, N, Tf, según la hora). El parámetro es un valor fijo que define el modelo (los pesos W_H/W_N/W_TF, o los umbrales 0.40/0.60/0.75).
-3. **¿Qué representa P₀?** Es la condición inicial de un modelo de crecimiento/decrecimiento exponencial. No aplica a este modelo porque no es dinámico ni tiene condición inicial: calcula un índice puntual por hora.
-4. **¿Qué ocurre cuando r < 0?** En un modelo exponencial, produce decrecimiento en vez de crecimiento.
-5. **¿Limitaciones del modelo exponencial?** No tiene techo (crece o decrece sin límite), ignora factores externos que frenan el proceso, y deja de ser realista a largo plazo.
