@@ -26,7 +26,7 @@
   <tr><td>Resultado de aprendizaje de la unidad</td><td>R1. Aplica análisis estadísticos de los datos de la Simulación para mejorar la calidad de los resultados, bajo los principios de solidaridad, transparencia, responsabilidad y honestidad.</td></tr>
   <tr><td>Práctica Nro.</td><td>01</td></tr>
   <tr><td>Título de la Práctica</td><td>Construcción y simulación computacional de un modelo matemático</td></tr>
-  <tr><td>Nombre del Docente</td><td>José O. Guamán Q.</td></tr>
+  <tr><td>Nombre del Docente</td><td>José Oswaldo Guamán Quinche</td></tr>
   <tr><td>Fecha</td><td>01 y 02 de octubre de 2026</td></tr>
   <tr><td>Horario</td><td>Jueves 10h30 a 11h30 · Viernes 07h30 a 09h30</td></tr>
   <tr><td>Lugar</td><td>Aula</td></tr>
@@ -34,7 +34,8 @@
 </table>
 
 <h2>2.&nbsp; Objetivo(s) de la Práctica</h2>
-<p>Comprender el proceso de construcción de un modelo matemático y analizar su comportamiento mediante Python.</p>
+<p><b>Objetivo general:</b> comprender el proceso de construcción de un modelo matemático y analizar su comportamiento mediante Python.</p>
+<p><b>Objetivos específicos:</b></p>
 <ol>
   <li>Identificar variables, parámetros y relaciones matemáticas de un sistema.</li>
   <li>Implementar un modelo matemático en Python.</li>
@@ -44,8 +45,9 @@
 <h2>3.&nbsp; Materiales, Reactivos, Equipos y Herramientas</h2>
 <h3>Materiales y reactivos:</h3>
 <ul class="square">
-  <li>NumPy 1.26 (cálculo numérico).</li>
-  <li>Matplotlib 3.9 (gráficas).</li>
+  <li>NumPy 1.26: cálculo numérico y manejo de arreglos [1].</li>
+  <li>Matplotlib 3.9: generación de las gráficas [2].</li>
+  <li>Datos atmosféricos de la guía: humedad, nubosidad y temperatura de nueve horas del día.</li>
 </ul>
 <h3>Equipos y herramientas:</h3>
 <ul class="square">
@@ -55,26 +57,60 @@
 </ul>
 
 <h2>4.&nbsp; Marco Conceptual</h2>
-<p><b>Modelo matemático.</b> Es una representación simplificada de un fenómeno real mediante variables, parámetros y relaciones (ecuaciones o reglas) que permite explicar o predecir su comportamiento. La <b>simulación</b> consiste en ejecutar ese modelo en un computador para observar cómo responde ante distintas entradas.</p>
-<p><b>Variables y parámetros.</b> Las variables cambian con cada observación del sistema; en esta práctica son la humedad, la nubosidad y la temperatura de cada hora. Los parámetros son valores fijos que definen el modelo: los pesos de cada variable y los umbrales de la tabla de reglas.</p>
-<p><b>Normalización.</b> Para combinar magnitudes distintas se llevan a una escala común de 0 a 1. La humedad y la nubosidad, expresadas en porcentaje, se dividen para 100. La temperatura se transforma en el factor <i>T<sub>f</sub></i> mediante la tabla de la guía: a menor temperatura, mayor factor.</p>
-<p><b>Promedio ponderado.</b> El índice de lluvia es una combinación lineal de las tres variables normalizadas. Si los pesos suman 1, el índice también queda entre 0 y 1 y puede interpretarse como una probabilidad relativa:</p>
-<p class="formula">I = 0.5·H + 0.3·N + 0.2·T<sub>f</sub></p>
-<p>El valor de <i>I</i> se clasifica con la tabla de reglas: <i>I</i> &lt; 0.40 sin lluvia; 0.40 ≤ <i>I</i> &lt; 0.60 baja posibilidad; 0.60 ≤ <i>I</i> &lt; 0.75 lluvia probable; <i>I</i> ≥ 0.75 lluvia.</p>
+
+<h3>4.1 Modelo matemático y simulación</h3>
+<p>Un sistema es un conjunto de entidades que interactúan para cumplir un propósito, y un modelo es una representación simplificada de ese sistema que se usa para estudiarlo [3]. Cuando el modelo se expresa con relaciones lógicas y cuantitativas se denomina <b>modelo matemático</b>. Si es lo bastante simple, puede resolverse de forma analítica; si no, se evalúa numéricamente en un computador. Este proceso se conoce como <b>simulación</b> [3], [4].</p>
+<p>Los modelos se clasifican como <b>estáticos o dinámicos</b>, según representen el sistema en un instante o su evolución en el tiempo, y como <b>determinísticos o estocásticos</b>, según contengan o no componentes aleatorios [3]. El modelo de esta práctica es <b>estático y determinístico</b>: para cada hora calcula un índice a partir de las condiciones de ese momento, y con las mismas entradas siempre produce el mismo resultado.</p>
+
+<h3>4.2 Variables, parámetros y relaciones</h3>
+<p>Las <b>variables</b> son las magnitudes que describen el estado del sistema y cambian entre observaciones. En esta práctica son la humedad, la nubosidad y la temperatura de cada hora. Los <b>parámetros</b> son valores constantes que fijan la forma del modelo durante una simulación: aquí, los pesos de cada variable, la tabla del factor de temperatura y los umbrales de clasificación. Las <b>relaciones</b> son las ecuaciones o reglas que conectan variables y parámetros para producir la salida [4].</p>
+
+<h3>4.3 Variables atmosféricas y precipitación</h3>
+<p>La precipitación requiere que el vapor de agua del aire se condense. La <b>humedad relativa</b> mide qué tan cerca está el aire de la saturación: cuando se acerca al 100 %, el vapor empieza a condensarse y se forman nubes y gotas [5]. La <b>temperatura</b> influye de forma inversa: el aire frío admite menos vapor antes de saturarse, por lo que, con el mismo contenido de agua, un descenso de temperatura eleva la humedad relativa y favorece la condensación [5]. La <b>nubosidad</b> indica la fracción del cielo cubierta por agua ya condensada. Estas relaciones justifican que el modelo asigne un índice mayor a humedad y nubosidad altas y a temperaturas bajas.</p>
+<p>En meteorología es habitual construir pronósticos estadísticos que combinan varios predictores observados en un solo valor, ajustando el aporte de cada uno [6]. El índice de esta práctica sigue esa idea de forma simplificada.</p>
+
+<h3>4.4 Normalización e índice compuesto</h3>
+<p>Para combinar magnitudes con unidades distintas, primero se llevan a una escala común entre 0 y 1. La humedad y la nubosidad, expresadas en porcentaje, se dividen para 100. La temperatura se transforma en el factor <i>T<sub>f</sub></i> mediante una tabla decreciente: 1.00 para 10 °C o menos y 0.10 para 28 °C o más. Luego el índice se obtiene como un <b>promedio ponderado</b>:</p>
+<p class="formula">I = W<sub>H</sub>·H + W<sub>N</sub>·N + W<sub>Tf</sub>·T<sub>f</sub>, &nbsp;&nbsp; con W<sub>H</sub> + W<sub>N</sub> + W<sub>Tf</sub> = 1</p>
+<p>Como los pesos son positivos y suman 1, <i>I</i> es una combinación convexa de valores entre 0 y 1, así que también queda entre 0 y 1. Además, cada peso es la derivada parcial del índice respecto de su variable (∂<i>I</i>/∂<i>H</i> = <i>W<sub>H</sub></i>): indica cuánto cambia <i>I</i> cuando esa variable aumenta en una unidad normalizada.</p>
+
+<h3>4.5 Clasificación por umbrales</h3>
+<p>El valor continuo de <i>I</i> se convierte en una categoría con la tabla de reglas de la guía:</p>
+<table class="data" style="width:60%; margin-left:auto; margin-right:auto;">
+  <tr><th>Índice I</th><th class="left">Estado</th></tr>
+  <tr><td>I &lt; 0.40</td><td class="left">Sin lluvia</td></tr>
+  <tr><td>0.40 ≤ I &lt; 0.60</td><td class="left">Baja posibilidad</td></tr>
+  <tr><td>0.60 ≤ I &lt; 0.75</td><td class="left">Lluvia probable</td></tr>
+  <tr><td>I ≥ 0.75</td><td class="left">Lluvia</td></tr>
+</table>
+<p>Convertir un pronóstico continuo en categorías facilita su comunicación, pero un pronóstico solo es útil si es consistente con el conocimiento del fenómeno, si coincide con lo que realmente ocurre y si aporta valor a quien lo usa [7].</p>
+
+<h3>4.6 Verificación, validación y sensibilidad</h3>
+<p>La <b>verificación</b> comprueba que el programa implementa correctamente el modelo conceptual, y la <b>validación</b> comprueba que el modelo representa al sistema real con la precisión necesaria [8]. En esta práctica la verificación se hizo reproduciendo el ejemplo resuelto de la guía. La validación requeriría comparar el índice con registros reales de lluvia.</p>
+<p>El <b>análisis de sensibilidad</b> estudia cómo cambia la salida de un modelo cuando cambian sus entradas o parámetros, e identifica cuáles influyen más [9]. Aquí se aplica al comparar el modelo original con uno que redistribuye los pesos.</p>
 
 <h2>5.&nbsp; Procedimiento / Metodología Ejecutada</h2>
 <ol>
-  <li>Se identificaron las variables (humedad, nubosidad y temperatura), los parámetros (pesos 0.5, 0.3 y 0.2, tabla de <i>T<sub>f</sub></i> y umbrales) y la relación matemática (promedio ponderado).</li>
-  <li>Se implementó el modelo en Python con arquitectura Modelo-Vista-Controlador: <code>model.py</code> contiene la fórmula, la tabla de <i>T<sub>f</sub></i> y la clasificación; <code>controller.py</code> contiene los datos de la guía; <code>view.py</code> genera las tablas y gráficas; <code>main.py</code> une el flujo.</li>
-  <li>Para temperaturas que no aparecen en la tabla (15 °C y 17 °C) se tomó el siguiente escalón igual o mayor, con la misma lógica con que está redactada la tabla (≤ 10 °C, ≥ 28 °C).</li>
-  <li>Se verificó el modelo con el ejemplo de la guía (humedad 90 %, nubosidad 80 %, 18 °C), que da <i>I</i> = 0.81.</li>
-  <li>Se calculó el índice para las nueve horas de la tabla de la guía.</li>
-  <li>Se ajustó el modelo cambiando solo los pesos a 0.4 / 0.3 / 0.3 (siguen sumando 1), dando más peso a la temperatura, y se volvió a llenar la tabla.</li>
-  <li>Se generaron cuatro gráficas para analizar la influencia de cada parámetro y se compararon ambos modelos.</li>
+  <li><b>Identificación del sistema.</b> Se identificaron las variables de entrada (humedad, nubosidad y temperatura), los parámetros (pesos 0.5, 0.3 y 0.2, tabla de <i>T<sub>f</sub></i> y umbrales) y la relación matemática (promedio ponderado), según la guía de la práctica y las diapositivas del curso [10].</li>
+  <li><b>Diseño del programa.</b> Se usó la arquitectura Modelo-Vista-Controlador (MVC) para separar responsabilidades:
+    <ul>
+      <li><code>model.py</code>: fórmula del índice, tabla de <i>T<sub>f</sub></i> y clasificación. No imprime ni grafica.</li>
+      <li><code>controller.py</code>: datos de entrada de la guía y orquestación del cálculo.</li>
+      <li><code>view.py</code>: tablas en consola y gráficas.</li>
+      <li><code>main.py</code>: punto de entrada que une el flujo.</li>
+    </ul></li>
+  <li><b>Factor de temperatura.</b> Para temperaturas que no aparecen en la tabla (15 °C y 17 °C) se tomó el siguiente escalón igual o mayor, con la misma lógica con que está redactada la tabla (≤ 10 °C, ≥ 28 °C). Así, 15 °C se trata como 16 °C (<i>T<sub>f</sub></i> = 0.70) y 17 °C como 18 °C (<i>T<sub>f</sub></i> = 0.60).</li>
+  <li><b>Verificación con el ejemplo de la guía.</b> Para humedad 90 %, nubosidad 80 % y 18 °C:
+    <p class="formula">H = 0.90, &nbsp; N = 0.80, &nbsp; T<sub>f</sub> = 0.60</p>
+    <p class="formula">I = 0.5(0.90) + 0.3(0.80) + 0.2(0.60) = 0.45 + 0.24 + 0.12 = 0.81</p>
+    <p>El programa devuelve <i>I</i> = 0.81, igual que la guía. Con esto se dio por verificada la implementación.</p></li>
+  <li><b>Simulación del día.</b> Se calculó el índice y el estado para las nueve horas de la tabla de la guía, de 06:00 a 22:00.</li>
+  <li><b>Ajuste del modelo.</b> Se cambiaron solo los pesos a 0.4 / 0.3 / 0.3 (siguen sumando 1), dando más peso a la temperatura, y se volvió a llenar la tabla.</li>
+  <li><b>Análisis.</b> Se generaron cuatro gráficas, se calcularon estadísticas de cada modelo y se analizó matemáticamente la diferencia entre ambos.</li>
 </ol>
 
 <h2>6.&nbsp; Resultados</h2>
-<h3>Modelo original (pesos 0.5 / 0.3 / 0.2)</h3>
+<h3>6.1 Modelo original (pesos 0.5 / 0.3 / 0.2)</h3>
 <table class="data">
   <tr><th>Hora</th><th>Humedad</th><th>Nubosidad</th><th>Temp.</th><th>H</th><th>N</th><th>T<sub>f</sub></th><th>Índice</th><th class="left">Estado</th></tr>
   <tr><td>06:00</td><td>65</td><td>40</td><td>14</td><td>0.65</td><td>0.40</td><td>0.80</td><td>0.60</td><td class="left">Lluvia probable</td></tr>
@@ -88,7 +124,7 @@
   <tr><td>22:00</td><td>80</td><td>75</td><td>15</td><td>0.80</td><td>0.75</td><td>0.70</td><td>0.77</td><td class="left">Lluvia</td></tr>
 </table>
 
-<h3>Modelo ajustado (pesos 0.4 / 0.3 / 0.3)</h3>
+<h3>6.2 Modelo ajustado (pesos 0.4 / 0.3 / 0.3)</h3>
 <table class="data">
   <tr><th>Hora</th><th>Humedad</th><th>Nubosidad</th><th>Temp.</th><th>H</th><th>N</th><th>T<sub>f</sub></th><th>Índice</th><th class="left">Estado</th></tr>
   <tr><td>06:00</td><td>65</td><td>40</td><td>14</td><td>0.65</td><td>0.40</td><td>0.80</td><td>0.62</td><td class="left">Lluvia probable</td></tr>
@@ -102,33 +138,59 @@
   <tr><td>22:00</td><td>80</td><td>75</td><td>15</td><td>0.80</td><td>0.75</td><td>0.70</td><td>0.76</td><td class="left">Lluvia</td></tr>
 </table>
 
+<h3>6.3 Resumen estadístico</h3>
+<table class="data">
+  <tr><th class="left">Indicador</th><th>Modelo original</th><th>Modelo ajustado</th></tr>
+  <tr><td class="left">Índice promedio del día</td><td>0.697</td><td>0.684</td></tr>
+  <tr><td class="left">Índice máximo (18:00)</td><td>0.885</td><td>0.863</td></tr>
+  <tr><td class="left">Índice mínimo (12:00)</td><td>0.470</td><td>0.450</td></tr>
+  <tr><td class="left">Horas con "Lluvia"</td><td>4</td><td>4</td></tr>
+  <tr><td class="left">Horas con "Lluvia probable"</td><td>3</td><td>3</td></tr>
+  <tr><td class="left">Horas con "Baja posibilidad"</td><td>2</td><td>2</td></tr>
+  <tr><td class="left">Horas con "Sin lluvia"</td><td>0</td><td>0</td></tr>
+</table>
+
+<h3>6.4 Gráficas</h3>
 <figure>
   <img src="../indice_lluvia.png" alt="Índice de lluvia durante el día">
   <figcaption>Figura 1. Evolución del índice I durante el día: modelo original frente al ajustado, sobre las franjas de la tabla de reglas.</figcaption>
 </figure>
-<p>El índice es bajo al mediodía (0.47 a las 12:00, cuando hace más calor y hay menos nubes) y sube por la tarde hasta su máximo a las 18:00 (0.89), cuando la humedad y la nubosidad superan el 90 %. Desde las 16:00 el modelo predice lluvia en ambas versiones.</p>
+<p>El índice baja hasta su mínimo al mediodía (0.47 a las 12:00), cuando la temperatura es más alta (22 °C) y la nubosidad más baja (30 %). Por la tarde sube hasta su máximo a las 18:00 (0.885), cuando la humedad y la nubosidad superan el 90 % y la temperatura desciende. Desde las 16:00 ambos modelos predicen lluvia.</p>
 
 <figure>
   <img src="../factor_temperatura.png" alt="Factor de temperatura">
   <figcaption>Figura 2. Factor de temperatura T<sub>f</sub> en función de la temperatura (tabla de la guía).</figcaption>
 </figure>
+<p>La relación entre temperatura y <i>T<sub>f</sub></i> es decreciente y escalonada: cada 2 °C el factor baja 0.10. Esto refleja que el aire frío se satura con más facilidad [5].</p>
 
 <figure>
   <img src="../variables_entrada.png" alt="Variables de entrada">
   <figcaption>Figura 3. Variables normalizadas H, N y T<sub>f</sub> a lo largo del día.</figcaption>
 </figure>
+<p>La humedad y la nubosidad siguen la misma tendencia: bajan al mediodía y suben por la tarde. <i>T<sub>f</sub></i> tiene el comportamiento inverso a la temperatura, con su mínimo a las 12:00. Las tres variables coinciden en señalar la tarde como el periodo más favorable para la lluvia, lo que explica el aumento del índice.</p>
 
 <figure>
   <img src="../contribucion_variables.png" alt="Contribución de cada variable">
   <figcaption>Figura 4. Aporte de cada término (peso × variable) al índice, para cada modelo.</figcaption>
 </figure>
-<p><b>Influencia de los parámetros.</b> La humedad es la variable que más aporta, porque tiene el peso más alto. Al pasar 0.1 de peso de la humedad a la temperatura, el índice baja ligeramente en casi todas las horas (por ejemplo, a las 16:00 pasa de 0.80 a 0.77). Esto ocurre porque <i>T<sub>f</sub></i> es menor que <i>H</i> en esas horas. El estado final casi no cambia, porque los datos del día son consistentemente húmedos y nublados. El modelo es más sensible a la humedad y a la nubosidad que a la temperatura.</p>
+
+<h3>6.5 Análisis de sensibilidad e influencia de los parámetros</h3>
+<p>Como cada peso es la derivada parcial del índice respecto de su variable, los pesos miden directamente la sensibilidad del modelo:</p>
+<table class="data">
+  <tr><th class="left">Cambio en la entrada</th><th>Efecto en I (original)</th><th>Efecto en I (ajustado)</th></tr>
+  <tr><td class="left">Humedad +10 puntos (ΔH = 0.10)</td><td>+0.050</td><td>+0.040</td></tr>
+  <tr><td class="left">Nubosidad +10 puntos (ΔN = 0.10)</td><td>+0.030</td><td>+0.030</td></tr>
+  <tr><td class="left">Temperatura +2 °C (ΔT<sub>f</sub> = −0.10)</td><td>−0.020</td><td>−0.030</td></tr>
+</table>
+<p>En el modelo original la humedad es la variable más influyente: pesa 2.5 veces más que la temperatura. Al restar el índice original del ajustado se obtiene una expresión sencilla:</p>
+<p class="formula">I<sub>ajustado</sub> − I<sub>original</sub> = (0.4 − 0.5)·H + (0.3 − 0.2)·T<sub>f</sub> = 0.1·(T<sub>f</sub> − H)</p>
+<p>Por lo tanto, el modelo ajustado da un índice <b>mayor</b> solo en las horas en que <i>T<sub>f</sub></i> &gt; <i>H</i>. Eso ocurre únicamente a las 06:00 (0.80 &gt; 0.65, el índice sube de 0.605 a 0.620). A las 08:00 ambos valores son iguales (0.70) y el índice no cambia. En el resto del día la humedad supera a <i>T<sub>f</sub></i> y el índice baja entre 0.008 y 0.028. Como la mayor diferencia es de apenas 0.028, ninguna hora cambia de estado: con estos datos, el modelo es <b>robusto</b> ante esa redistribución de pesos [9].</p>
 
 <h2>7.&nbsp; Preguntas de Control</h2>
 <p><i>Nota: las preguntas 3 a 5 se refieren al modelo de crecimiento exponencial P(t) = P<sub>0</sub>·e<sup>rt</sup> y se responden en términos generales.</i></p>
 <ol>
   <li><p class="question">¿Qué es un modelo matemático?</p>
-  <p>Es una representación simplificada de un fenómeno real mediante variables, parámetros y relaciones matemáticas, que permite explicar o predecir su comportamiento. En esta práctica, la fórmula del índice representa la posibilidad de lluvia a partir de tres variables atmosféricas.</p></li>
+  <p>Es una representación simplificada de un fenómeno real mediante variables, parámetros y relaciones matemáticas, que permite explicar o predecir su comportamiento [3]. En esta práctica, la fórmula del índice representa la posibilidad de lluvia a partir de tres variables atmosféricas.</p></li>
   <li><p class="question">¿Cuál es la diferencia entre variable y parámetro?</p>
   <p>Una variable cambia con cada observación del sistema (H, N y T<sub>f</sub> cambian hora a hora). Un parámetro es un valor fijo que define la forma del modelo durante la simulación (los pesos 0.5, 0.3 y 0.2 y los umbrales 0.40, 0.60 y 0.75). Cambiar un parámetro significa cambiar el modelo, como se hizo en el modelo ajustado.</p></li>
   <li><p class="question">¿Qué representa P₀?</p>
@@ -141,42 +203,82 @@
 
 <h2>8.&nbsp; Conclusiones</h2>
 <ul class="square">
-  <li>Construir un modelo matemático exige identificar primero las variables, los parámetros y la relación entre ellos. Con eso definido, la implementación en Python es directa.</li>
-  <li>La normalización a 0–1 y los pesos que suman 1 hacen que el índice sea comparable entre horas e interpretable con la tabla de reglas.</li>
-  <li>El modelo predice lluvia desde las 16:00 hasta las 22:00, cuando la humedad y la nubosidad son altas y la temperatura baja.</li>
-  <li>Redistribuir los pesos modifica el valor del índice pero, con estos datos, casi no cambia la clasificación. El modelo es robusto ante cambios pequeños en los parámetros.</li>
+  <li>Construir un modelo matemático exige identificar primero las variables, los parámetros y la relación entre ellos. Con eso definido, la implementación en Python es directa y la arquitectura MVC permite cambiar parámetros sin modificar el resto del programa.</li>
+  <li>La normalización a la escala 0–1 y los pesos que suman 1 garantizan que el índice también quede entre 0 y 1, lo que lo hace comparable entre horas e interpretable con la tabla de reglas.</li>
+  <li>El modelo predice lluvia desde las 16:00 hasta las 22:00, cuando la humedad y la nubosidad son altas y la temperatura baja. Esto es coherente con la física de la condensación descrita en el marco conceptual.</li>
+  <li>Los pesos son la sensibilidad del modelo: en el original, la humedad domina el índice (peso 0.5).</li>
+  <li>La diferencia entre el modelo ajustado y el original es 0.1·(T<sub>f</sub> − H). Por eso el ajuste solo sube el índice cuando <i>T<sub>f</sub></i> supera a <i>H</i>. Con estos datos el cambio máximo es de 0.028 y ninguna hora cambia de estado.</li>
+  <li>La implementación quedó verificada con el ejemplo de la guía (<i>I</i> = 0.81). Para validarla haría falta compararla con registros reales de lluvia.</li>
 </ul>
 
 <h2>9.&nbsp; Recomendaciones</h2>
 <ul class="square">
-  <li>Validar los pesos con datos meteorológicos reales (horas en que efectivamente llovió) en lugar de fijarlos a criterio.</li>
-  <li>Interpolar el factor de temperatura para valores intermedios, en vez de usar escalones, para evitar saltos bruscos en el índice.</li>
-  <li>Separar el modelo de la presentación (arquitectura MVC) facilita probar distintos pesos sin tocar el resto del programa.</li>
+  <li>Validar el modelo con datos meteorológicos reales (por ejemplo, horas en que efectivamente llovió) y ajustar los pesos para maximizar los aciertos, en lugar de fijarlos a criterio [8], [7].</li>
+  <li>Interpolar el factor de temperatura de forma lineal para valores intermedios, en vez de usar escalones, para evitar saltos bruscos del índice.</li>
+  <li>Aplicar un análisis de sensibilidad global, variando todos los pesos a la vez, para identificar combinaciones que sí cambien la clasificación [9].</li>
+  <li>Incorporar otras variables relevantes para la precipitación, como la presión atmosférica o el punto de rocío [5], [6].</li>
+  <li>Mantener la separación entre modelo y presentación (MVC) para facilitar pruebas y cambios futuros.</li>
 </ul>
 
 <h2>10.&nbsp; Bibliografía / Referencias</h2>
 <div class="refs">
-  <p>[1] J. O. Guamán Q., “Diapositivas semana 1 – Introducción a la Simulación,” Universidad Nacional de Loja, 2026.</p>
-  <p>[2] A. M. Law, <i>Simulation Modeling and Analysis</i>, 5th ed. New York, NY, USA: McGraw-Hill, 2015.</p>
-  <p>[3] C. R. Harris <i>et al.</i>, “Array programming with NumPy,” <i>Nature</i>, vol. 585, pp. 357–362, 2020.</p>
-  <p>[4] J. D. Hunter, “Matplotlib: A 2D graphics environment,” <i>Computing in Science &amp; Engineering</i>, vol. 9, no. 3, pp. 90–95, 2007.</p>
+  <p>[1] C. R. Harris <i>et al.</i>, “Array programming with NumPy,” <i>Nature</i>, vol. 585, pp. 357–362, 2020.</p>
+  <p>[2] J. D. Hunter, “Matplotlib: A 2D graphics environment,” <i>Computing in Science &amp; Engineering</i>, vol. 9, no. 3, pp. 90–95, 2007.</p>
+  <p>[3] A. M. Law, <i>Simulation Modeling and Analysis</i>, 5th ed. New York, NY, USA: McGraw-Hill, 2015.</p>
+  <p>[4] J. Banks, J. S. Carson, B. L. Nelson y D. M. Nicol, <i>Discrete-Event System Simulation</i>, 5th ed. Upper Saddle River, NJ, USA: Pearson, 2010.</p>
+  <p>[5] M. G. Lawrence, “The relationship between relative humidity and the dewpoint temperature in moist air: A simple conversion and applications,” <i>Bulletin of the American Meteorological Society</i>, vol. 86, no. 2, pp. 225–233, 2005.</p>
+  <p>[6] D. S. Wilks, <i>Statistical Methods in the Atmospheric Sciences</i>, 4th ed. Amsterdam, Netherlands: Elsevier, 2019.</p>
+  <p>[7] A. H. Murphy, “What is a good forecast? An essay on the nature of goodness in weather forecasting,” <i>Weather and Forecasting</i>, vol. 8, no. 2, pp. 281–293, 1993.</p>
+  <p>[8] R. G. Sargent, “Verification and validation of simulation models,” <i>Journal of Simulation</i>, vol. 7, no. 1, pp. 12–24, 2013.</p>
+  <p>[9] A. Saltelli <i>et al.</i>, <i>Global Sensitivity Analysis: The Primer</i>. Chichester, U.K.: Wiley, 2008.</p>
+  <p>[10] J. O. Guamán Quinche, “Diapositivas semana 1 – Introducción a la Simulación,” Universidad Nacional de Loja, 2026.</p>
 </div>
 
 <h2 class="page-break">11.&nbsp; Anexos</h2>
-<h3>Código fuente</h3>
+<h3>Anexo A. Código fuente</h3>
 <p>El código completo está en el repositorio <b>github.com/ivecanahi/simulacion-practicas</b>, carpeta <code>Unidad1/practica01</code>. Se ejecuta con:</p>
 <pre>pip install -r requirements.txt
 cd Unidad1/practica01
 python3 main.py</pre>
-<p>Fragmento principal del modelo (<code>model.py</code>):</p>
-<pre>def compute_index(humidity, cloudiness, temp, weights):
+<p>Fórmula del índice y factor de temperatura (<code>model.py</code>):</p>
+<pre>def temperature_factor(temp):
+    if temp &lt;= TEMPERATURE_TABLE[0][0]:
+        return TEMPERATURE_TABLE[0][1]
+    if temp &gt;= TEMPERATURE_TABLE[-1][0]:
+        return TEMPERATURE_TABLE[-1][1]
+    for t_table, tf in TEMPERATURE_TABLE:
+        if temp &lt;= t_table:
+            return tf
+
+def compute_index(humidity, cloudiness, temp, weights):
     w_h, w_n, w_tf = weights
     h = normalize(humidity)
     n = normalize(cloudiness)
     tf = temperature_factor(temp)
     index = w_h * h + w_n * n + w_tf * tf
-    return h, n, tf, index</pre>
+    return h, n, tf, index
 
+def classify_state(index):
+    if index &lt; 0.40:
+        return "Sin lluvia"
+    if index &lt; 0.60:
+        return "Baja posibilidad"
+    if index &lt; 0.75:
+        return "Lluvia probable"
+    return "Lluvia"</pre>
+
+<h3>Anexo B. Salida del programa (modelo original)</h3>
+<pre>Hora    Humedad  Nubosidad  Temp      H      N     Tf   Indice  Estado
+----------------------------------------------------------------------
+06:00        65         40    14   0.65   0.40   0.80     0.60  Lluvia probable
+08:00        70         50    16   0.70   0.50   0.70     0.64  Lluvia probable
+10:00        68         45    18   0.68   0.45   0.60     0.59  Baja posibilidad
+12:00        60         30    22   0.60   0.30   0.40     0.47  Baja posibilidad
+14:00        75         70    20   0.75   0.70   0.50     0.68  Lluvia probable
+16:00        85         85    18   0.85   0.85   0.60     0.80  Lluvia
+18:00        92         95    16   0.92   0.95   0.70     0.89  Lluvia
+20:00        88         90    17   0.88   0.90   0.60     0.83  Lluvia
+22:00        80         75    15   0.80   0.75   0.70     0.77  Lluvia</pre>
 
 </td></tr></tbody>
 </table>
