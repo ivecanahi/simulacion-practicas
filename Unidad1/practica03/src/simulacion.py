@@ -1,3 +1,9 @@
+"""Simulación de eventos discretos de una cola M/M/1 con SimPy.
+
+El reloj de SimPy no avanza segundo a segundo: salta de un evento al
+siguiente (una llegada, el inicio o el fin de una atención).
+"""
+
 import simpy
 import numpy as np
 
@@ -28,18 +34,20 @@ def simular(lam, mu, tiempo_simulacion=1000, semilla=42):
     if not es_estable(lam, mu):
         raise ValueError("El sistema no es estable.") 
 
-    # Generador de numeros aleatorios
+    # Generador de numeros aleatorios (con la misma semilla se obtienen
+    # exactamente los mismos resultados)
     rng = np.random.default_rng(semilla)
 
-    # Crear entorno y servidor
+    # Crear entorno y servidor: el Resource con capacidad 1 es el unico
+    # servidor; SimPy atiende sus solicitudes en orden de llegada (FIFO)
     env = simpy.Environment()
     servidor = simpy.Resource(env, capacity=1)
 
     # Variables de la simulacion
-    tiempos_espera = []
-    tiempos_sistema = []
-    tamanos_cola = []
-    muestras_cola = []
+    tiempos_espera = []   # espera en cola de cada cliente (para Wq)
+    tiempos_sistema = []  # espera + servicio de cada cliente (para W)
+    tamanos_cola = []     # cola que observa cada cliente al llegar (para Lq)
+    muestras_cola = []    # pares (tiempo, tamano de la cola) para graficar
 
     clientes_llegados = 0
     clientes_atendidos = 0
@@ -51,12 +59,15 @@ def simular(lam, mu, tiempo_simulacion=1000, semilla=42):
 
         llegada = env.now
 
-        # Registrar cuantos clientes esperan al llegar
+        # Registrar cuantos clientes esperan al llegar. Por la propiedad PASTA
+        # (las llegadas de Poisson ven el promedio temporal), el promedio de
+        # estos valores estima Lq
         tamanos_cola.append(len(servidor.queue))
         muestras_cola.append((env.now, len(servidor.queue)))
         
 
-        # Solicitar el servidor
+        # Solicitar el servidor. "yield solicitud" pausa al cliente hasta que
+        # le toque su turno; al salir del bloque "with" el servidor se libera
         with servidor.request() as solicitud:
             yield solicitud
 
@@ -67,7 +78,8 @@ def simular(lam, mu, tiempo_simulacion=1000, semilla=42):
             # Registrar la cola cuando el cliente sale de ella
             muestras_cola.append((env.now, len(servidor.queue)))
 
-            # Generar duracion aleatoria del servicio
+            # Generar duracion aleatoria del servicio (exponencial con
+            # media 1/mu; NumPy recibe la media, no la tasa)
             tiempo_servicio = rng.exponential(1 / mu)
 
             # Atender al cliente
@@ -82,7 +94,8 @@ def simular(lam, mu, tiempo_simulacion=1000, semilla=42):
         nonlocal clientes_llegados
 
         while True:
-            # Tiempo entre llegadas con distribucion exponencial
+            # Tiempo entre llegadas con distribucion exponencial de media
+            # 1/lam (equivale a llegadas de Poisson con tasa lam)
             intervalo = rng.exponential(1 / lam)
 
             # Esperar hasta la siguiente llegada
@@ -123,4 +136,5 @@ def simular(lam, mu, tiempo_simulacion=1000, semilla=42):
         "muestras_cola": muestras_cola,
     }
 
+# Alias con el nombre acordado en el contrato entre modulos del proyecto
 simular_mm1 = simular

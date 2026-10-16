@@ -1,4 +1,8 @@
-"""Console presentation for the M/M/1 simulation results."""
+"""Presentación de los resultados en la consola con la biblioteca rich.
+
+Cada función recibe opcionalmente una consola; las pruebas pasan una consola
+que graba el texto para poder revisarlo.
+"""
 
 from rich import box
 from rich.console import Console, Group
@@ -6,11 +10,12 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+# Consola compartida por todo el programa
 CONSOLA = Console()
 
 
 def color_error(error):
-    """Green below 10 %, yellow below 20 %, red otherwise."""
+    """Color según el error %: verde (< 10 %), amarillo (< 20 %) o rojo."""
     if error < 10:
         return "green"
     if error < 20:
@@ -19,7 +24,8 @@ def color_error(error):
 
 
 def barra_utilizacion(rho, ancho=30):
-    """Text bar showing how busy the server is."""
+    """Barra de texto que muestra qué tan ocupado está el servidor (rho)."""
+    # Cantidad de bloques llenos proporcional a rho; el color avisa la saturación
     llenos = round(rho * ancho)
     color = "green" if rho < 0.8 else "yellow" if rho < 0.95 else "red"
     barra = Text("█" * llenos, style=color)
@@ -29,6 +35,7 @@ def barra_utilizacion(rho, ancho=30):
 
 
 def mostrar_encabezado(escenarios, tiempo_sim, semilla, consola=CONSOLA):
+    """Panel inicial con los escenarios y los parámetros de la simulación."""
     tabla = Table(box=box.SIMPLE_HEAVY, header_style="bold cyan", show_edge=False)
     tabla.add_column("Escenario", justify="center")
     tabla.add_column("λ (llegadas)", justify="right")
@@ -59,11 +66,13 @@ def mostrar_encabezado(escenarios, tiempo_sim, semilla, consola=CONSOLA):
 
 
 def mostrar_escenario(esc, resultado, consola=CONSOLA):
+    """Panel de un escenario: utilización, clientes atendidos y Wq/Lq teórico vs. simulado."""
     tabla = Table(box=box.ROUNDED, header_style="bold")
     tabla.add_column("Métrica")
     tabla.add_column("Teórico", justify="right", style="cyan")
     tabla.add_column("Simulado", justify="right", style="magenta")
     tabla.add_column("Error", justify="right")
+    # (nombre visible, clave teórica, clave simulada, clave del error)
     filas = [
         ("Wq · espera en cola", "Wq", "espera_promedio", "error_Wq_%"),
         ("Lq · clientes en cola", "Lq", "cola_promedio", "error_Lq_%"),
@@ -95,6 +104,7 @@ def mostrar_escenario(esc, resultado, consola=CONSOLA):
 
 
 def mostrar_inestable(numero, lam, mu, consola=CONSOLA):
+    """Aviso en rojo para un escenario que no se simula porque lam >= mu."""
     consola.print(
         Panel(
             f"λ = {lam} ≥ μ = {mu}: el sistema no es estable y la cola crecería sin límite.",
@@ -106,6 +116,7 @@ def mostrar_inestable(numero, lam, mu, consola=CONSOLA):
 
 
 def mostrar_tabla(resultados, consola=CONSOLA):
+    """Tabla final que compara las métricas teóricas y simuladas de todos los escenarios."""
     tabla = Table(
         title="[bold]Comparación teórico vs. simulado[/bold]",
         box=box.ROUNDED,
@@ -146,6 +157,7 @@ def mostrar_tabla(resultados, consola=CONSOLA):
 
 
 def mostrar_archivos(rutas, consola=CONSOLA):
+    """Lista de las gráficas y tablas que se guardaron en disco."""
     lista = Text("\n").join(Text.assemble(("✔ ", "green"), ruta) for ruta in rutas)
     consola.print()
     consola.print(
