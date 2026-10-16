@@ -12,6 +12,7 @@ llegada a la capacidad del servidor.
 - SimPy: simulación de eventos discretos
 - NumPy: números aleatorios y cálculos
 - Matplotlib: gráficas
+- rich: presentación de los resultados en la consola
 - pytest: pruebas
 
 ## Instalación y ejecución
@@ -40,6 +41,8 @@ python main.py
 ```
 
 ## Resultados
+
+El informe técnico completo está en [`Reporte_Practica_03.pdf`](Reporte_Practica_03.pdf).
 
 El programa guarda en `resultados/`:
 
@@ -71,7 +74,8 @@ src/
   simulacion.py   # Simulación M/M/1
   graficas.py     # Gráficas de cola, esperas y comparación
   experimentos.py # Escenarios y tabla comparativa
-tests/            # Pruebas de teoría y simulación
+  consola.py      # Presentación de resultados en la consola
+tests/            # Pruebas de teoría, simulación y consola
 main.py           # Ejecución del proyecto
 resultados/       # Imágenes y tabla generadas
 ```

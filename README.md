@@ -8,7 +8,8 @@ Repositorio de prácticas de la asignatura **Simulación** (Ciclo 5, Carrera de 
 .
 ├── Unidad1/
 │   ├── practica01/   # Construcción y simulación computacional de un modelo matemático
-│   └── practica02/   # Comparación de modelos determinísticos, estocásticos, discretos y continuos
+│   ├── practica02/   # Comparación de modelos determinísticos, estocásticos, discretos y continuos
+│   └── practica03/   # Simulación de un sistema de líneas de espera M/M/1 mediante SimPy
 ├── Unidad2/
 ├── Unidad3/
 ├── assets/           # Logo y estilo compartidos por los reportes técnicos
@@ -17,12 +18,7 @@ Repositorio de prácticas de la asignatura **Simulación** (Ciclo 5, Carrera de 
 └── .gitignore
 ```
 
-Cada práctica es un proyecto Python independiente (su propio `main.py`), construido con arquitectura **MVC (Modelo-Vista-Controlador)**:
-
-- **model.py** — lógica matemática pura (sin I/O).
-- **controller.py** — datos de entrada y orquestación entre modelo y vista.
-- **view.py** — salida en consola y gráficas (matplotlib).
-- **main.py** — punto de entrada que arma el flujo completo.
+Cada práctica es un proyecto Python independiente, con su propio `main.py` como punto de entrada. La organización interna del código (archivos y módulos) se describe en el `README.md` de cada práctica.
 
 ## Requisitos
 
@@ -30,6 +26,12 @@ Cada práctica es un proyecto Python independiente (su propio `main.py`), constr
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+Si una práctica tiene su propio `requirements.txt` (por ejemplo, `practica03` usa SimPy y rich), se instala también desde su carpeta:
+
+```bash
+pip install -r Unidad1/practica03/requirements.txt
 ```
 
 ## Cómo correr una práctica
@@ -43,7 +45,7 @@ Cada práctica tiene su propio `README.md` (descripción, tecnologías, instalac
 
 ## Reportes técnicos
 
-El reporte de cada práctica se escribe en `reporte/reporte.html` y se genera en PDF con Chrome:
+En `practica01` y `practica02`, el reporte se escribe en `reporte/reporte.html` y se genera en PDF con Chrome:
 
 ```bash
 tools/build_reports.sh

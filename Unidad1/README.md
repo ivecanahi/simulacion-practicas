@@ -6,3 +6,4 @@ Resultado de aprendizaje: aplicar análisis estadísticos de los datos de la sim
 
 - [`practica01`](practica01/) — Construcción y simulación computacional de un modelo matemático (índice de probabilidad de lluvia).
 - [`practica02`](practica02/) — Comparación de modelos determinísticos, estocásticos, discretos y continuos (crecimiento poblacional).
+- [`practica03`](practica03/) — Simulación de un sistema de líneas de espera M/M/1 mediante SimPy (comparación de métricas teóricas y simuladas).
