@@ -1,0 +1,9 @@
+# Ignore PDFs (practice guide is not published)
+*.pdf
+
+# Local agent tooling
+.atl/
+.venv/
+__pycache__/
+.pytest_cache/
+
