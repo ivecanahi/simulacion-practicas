@@ -56,3 +56,10 @@ def test_tiempo_de_simulacion_no_positivo_lanza_error():
         match="El tiempo de simulacion debe ser positivo",
     ):
         simular(2.0, 3.0, 0)
+
+
+def test_escenarios_de_opcion_uno_o_todos():
+    from src.experimentos import ESCENARIOS, escenarios_de_opcion
+
+    assert escenarios_de_opcion(2) == [ESCENARIOS[1]]
+    assert escenarios_de_opcion(len(ESCENARIOS) + 1) == ESCENARIOS

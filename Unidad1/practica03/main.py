@@ -1,8 +1,9 @@
-"""Punto de entrada: simula los tres escenarios de la práctica M/M/1.
+"""Punto de entrada: menú para simular los escenarios de la práctica M/M/1.
 
 Uso: python main.py
-Imprime los resultados en la consola y guarda las gráficas y la tabla
-comparativa en la carpeta resultados/.
+Muestra un menú para elegir un escenario o todos. Imprime los resultados en
+la consola y guarda las gráficas (y, con todos, la tabla comparativa) en la
+carpeta resultados/.
 """
 
 import os
@@ -13,28 +14,28 @@ from src.consola import (
     mostrar_encabezado,
     mostrar_escenario,
     mostrar_inestable,
+    mostrar_menu,
     mostrar_tabla,
+    pedir_opcion,
 )
 from src.experimentos import (
     ESCENARIOS,
     SEMILLA,
     TIEMPO_SIM,
     ejecutar_escenario,
+    escenarios_de_opcion,
     tabla_comparativa,
 )
 from src.graficas import graficar_cola, graficar_comparacion, graficar_esperas
 from src.teoria import es_estable
 
 
-def main():
-    """Ejecuta todos los escenarios, muestra los resultados y genera los archivos."""
-    os.makedirs("resultados", exist_ok=True)
+def simular(escenarios):
+    """Simula los escenarios elegidos, muestra los resultados y genera los archivos."""
     resultados = []  # un diccionario por escenario simulado
     archivos = []    # rutas generadas, para listarlas al final
 
-    mostrar_encabezado(ESCENARIOS, TIEMPO_SIM, SEMILLA)
-
-    for esc in ESCENARIOS:
+    for esc in escenarios:
         n = esc["escenario"]
         lam = esc["lam"]
         mu = esc["mu"]
@@ -59,13 +60,33 @@ def main():
         graficar_esperas(r["tiempos_espera"], titulo, ruta_esperas)
         archivos += [ruta_cola, ruta_esperas]
 
-    # Resultados que comparan los tres escenarios juntos
-    tabla_comparativa(resultados)
-    graficar_comparacion(resultados, "resultados/comparacion.png")
-    archivos += ["resultados/comparacion.png", "resultados/tabla.csv"]
+    # La comparación solo tiene sentido con más de un escenario
+    if len(resultados) > 1:
+        tabla_comparativa(resultados)
+        graficar_comparacion(resultados, "resultados/comparacion.png")
+        archivos += ["resultados/comparacion.png", "resultados/tabla.csv"]
+        mostrar_tabla(resultados)
 
-    mostrar_tabla(resultados)
-    mostrar_archivos(archivos)
+    if archivos:
+        mostrar_archivos(archivos)
+
+
+def main():
+    """Muestra el menú y simula lo elegido hasta que el usuario sale."""
+    os.makedirs("resultados", exist_ok=True)
+    mostrar_encabezado(ESCENARIOS, TIEMPO_SIM, SEMILLA)
+
+    try:
+        while True:
+            mostrar_menu(ESCENARIOS)
+            opcion = pedir_opcion(ESCENARIOS)
+            if opcion == 0:
+                break
+            simular(escenarios_de_opcion(opcion))
+    except (KeyboardInterrupt, EOFError):
+        # Ctrl+C o fin de la entrada: se sale sin mostrar el error
+        CONSOLA.print()
+    CONSOLA.print("[bold]Hasta luego.[/bold]")
 
 
 # Solo se ejecuta al correr "python main.py", no al importar este archivo

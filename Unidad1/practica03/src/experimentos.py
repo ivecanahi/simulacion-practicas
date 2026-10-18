@@ -22,6 +22,15 @@ COLUMNAS = [
     "espera_promedio", "cola_promedio", "error_Wq_%", "error_Lq_%",
 ]
 
+def escenarios_de_opcion(opcion, escenarios=ESCENARIOS):
+    """Escenarios que corresponden a la opción del menú.
+
+    1..n elige un solo escenario; n+1 elige todos.
+    """
+    if opcion == len(escenarios) + 1:
+        return escenarios
+    return [escenarios[opcion - 1]]
+
 def error_porcentual(teorico, simulado):
     """Diferencia relativa entre el valor teórico y el simulado, en %."""
     return abs(teorico - simulado) / teorico * 100

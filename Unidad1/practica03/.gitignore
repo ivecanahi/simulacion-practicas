@@ -1,5 +1,7 @@
 # Ignore PDFs (practice guide is not published)
 *.pdf
+# Ignore Word documents (the report is not published)
+*.docx
 
 # Local agent tooling
 .atl/

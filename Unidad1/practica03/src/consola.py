@@ -7,6 +7,7 @@ que graba el texto para poder revisarlo.
 from rich import box
 from rich.console import Console, Group
 from rich.panel import Panel
+from rich.prompt import Prompt
 from rich.table import Table
 from rich.text import Text
 
@@ -63,6 +64,38 @@ def mostrar_encabezado(escenarios, tiempo_sim, semilla, consola=CONSOLA):
             expand=False,
         )
     )
+
+
+def mostrar_menu(escenarios, consola=CONSOLA):
+    """Menú con un número por escenario, una opción para todos y 0 para salir."""
+    tabla = Table(box=box.SIMPLE, show_header=False, show_edge=False)
+    tabla.add_column("Opción", justify="right", style="bold cyan")
+    tabla.add_column("Descripción")
+    for esc in escenarios:
+        tabla.add_row(
+            str(esc["escenario"]),
+            f"Escenario {esc['escenario']} · {esc['condicion']} "
+            f"(λ = {esc['lam']:.1f}, μ = {esc['mu']:.1f})",
+        )
+    tabla.add_row(str(len(escenarios) + 1), "Todos los escenarios y comparación")
+    tabla.add_row("0", "Salir")
+    consola.print()
+    consola.print(
+        Panel(tabla, title="[bold]Menú[/bold]", border_style="cyan", expand=False)
+    )
+
+
+class PromptMenu(Prompt):
+    """Prompt de rich con el aviso de opción inválida en español."""
+
+    illegal_choice_message = "[prompt.invalid.choice]Opción no válida, elige una de la lista"
+
+
+def pedir_opcion(escenarios, consola=CONSOLA, stream=None):
+    """Pide una opción del menú; vuelve a preguntar si no es válida."""
+    # Opciones válidas: 0 (salir), 1..n (un escenario) y n+1 (todos)
+    opciones = [str(i) for i in range(len(escenarios) + 2)]
+    return int(PromptMenu.ask("Elige una opción", choices=opciones, console=consola, stream=stream))
 
 
 def mostrar_escenario(esc, resultado, consola=CONSOLA):

@@ -40,6 +40,10 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
+Al iniciar se muestra un menú: las opciones `1`, `2` y `3` simulan un solo
+escenario, `4` simula los tres y genera la comparación, y `0` sale del
+programa. El menú se repite hasta elegir `0`.
+
 ## Resultados
 
 El informe técnico completo está en [`Reporte_Practica_03.pdf`](Reporte_Practica_03.pdf).

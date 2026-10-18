@@ -1,3 +1,5 @@
+import io
+
 from rich.console import Console
 
 from src.consola import (
@@ -5,7 +7,9 @@ from src.consola import (
     mostrar_encabezado,
     mostrar_escenario,
     mostrar_inestable,
+    mostrar_menu,
     mostrar_tabla,
+    pedir_opcion,
 )
 
 ESCENARIO = {"escenario": 3, "lam": 2.9, "mu": 3.0, "condicion": "Cerca de saturacion"}
@@ -68,3 +72,36 @@ def test_inestable_avisa_al_usuario():
     consola = consola_de_prueba()
     mostrar_inestable(4, 3.5, 3.0, consola)
     assert "no es estable" in consola.export_text()
+
+
+ESCENARIOS = [
+    {"escenario": 1, "lam": 2.0, "mu": 3.0, "condicion": "Sistema estable"},
+    ESCENARIO,
+]
+
+
+def test_menu_lista_escenarios_todos_y_salir():
+    consola = consola_de_prueba()
+    mostrar_menu(ESCENARIOS, consola)
+    texto = consola.export_text()
+    assert "Sistema estable" in texto
+    assert "Cerca de saturacion" in texto
+    assert "Todos los escenarios" in texto
+    assert "Salir" in texto
+
+
+def test_pedir_opcion_devuelve_numero_elegido():
+    consola = consola_de_prueba()
+    assert pedir_opcion(ESCENARIOS, consola, stream=io.StringIO("2\n")) == 2
+
+
+def test_pedir_opcion_vuelve_a_preguntar_si_la_opcion_no_existe():
+    consola = consola_de_prueba()
+    opcion = pedir_opcion(ESCENARIOS, consola, stream=io.StringIO("9\nabc\n0\n"))
+    assert opcion == 0
+
+
+def test_pedir_opcion_avisa_en_espanol_si_la_opcion_no_existe():
+    consola = consola_de_prueba()
+    pedir_opcion(ESCENARIOS, consola, stream=io.StringIO("9\n0\n"))
+    assert "Opción no válida" in consola.export_text()
