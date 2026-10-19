@@ -42,7 +42,8 @@ python main.py
 
 Al iniciar se muestra un menú: las opciones `1`, `2` y `3` simulan un solo
 escenario, `4` simula los tres y genera la comparación, y `0` sale del
-programa. El menú se repite hasta elegir `0`.
+programa. Después de cada simulación se presiona Enter para volver al menú,
+que se repite hasta elegir `0`.
 
 ## Resultados
 

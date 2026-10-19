@@ -5,6 +5,7 @@ que graba el texto para poder revisarlo.
 """
 
 from rich import box
+from rich.columns import Columns
 from rich.console import Console, Group
 from rich.panel import Panel
 from rich.prompt import Prompt
@@ -24,28 +25,45 @@ def color_error(error):
     return "red"
 
 
+def color_utilizacion(rho):
+    """Color según la utilización: verde (< 0.8), amarillo (< 0.95) o rojo."""
+    if rho < 0.8:
+        return "green"
+    if rho < 0.95:
+        return "yellow"
+    return "red"
+
+
 def barra_utilizacion(rho, ancho=30):
     """Barra de texto que muestra qué tan ocupado está el servidor (rho)."""
     # Cantidad de bloques llenos proporcional a rho; el color avisa la saturación
     llenos = round(rho * ancho)
-    color = "green" if rho < 0.8 else "yellow" if rho < 0.95 else "red"
+    color = color_utilizacion(rho)
     barra = Text("█" * llenos, style=color)
     barra.append("░" * (ancho - llenos), style="dim")
     barra.append(f" {rho:.1%}", style=f"bold {color}")
     return barra
 
 
-def mostrar_encabezado(escenarios, tiempo_sim, semilla, consola=CONSOLA):
-    """Panel inicial con los escenarios y los parámetros de la simulación."""
+def mostrar_menu(escenarios, tiempo_sim, semilla, consola=CONSOLA):
+    """Panel con los escenarios, una opción para todos, 0 para salir y los parámetros."""
     tabla = Table(box=box.SIMPLE_HEAVY, header_style="bold cyan", show_edge=False)
-    tabla.add_column("Escenario", justify="center")
-    tabla.add_column("λ (llegadas)", justify="right")
-    tabla.add_column("μ (servicio)", justify="right")
-    tabla.add_column("Condición")
+    tabla.add_column("Opción", justify="right", style="bold cyan")
+    tabla.add_column("Escenario")
+    tabla.add_column("λ", justify="right")
+    tabla.add_column("μ", justify="right")
+    tabla.add_column("ρ", justify="right")
     for esc in escenarios:
+        rho = esc["lam"] / esc["mu"]
         tabla.add_row(
-            str(esc["escenario"]), f"{esc['lam']:.1f}", f"{esc['mu']:.1f}", esc["condicion"]
+            str(esc["escenario"]),
+            f"Escenario {esc['escenario']} · {esc['condicion']}",
+            f"{esc['lam']:.1f}",
+            f"{esc['mu']:.1f}",
+            Text(f"{rho:.3f}", style=color_utilizacion(rho)),
         )
+    tabla.add_row(str(len(escenarios) + 1), "Todos los escenarios y comparación", "", "", "")
+    tabla.add_row("0", "Salir", "", "", "")
 
     parametros = Text.assemble(
         ("Tiempo de simulación: ", "dim"),
@@ -66,25 +84,6 @@ def mostrar_encabezado(escenarios, tiempo_sim, semilla, consola=CONSOLA):
     )
 
 
-def mostrar_menu(escenarios, consola=CONSOLA):
-    """Menú con un número por escenario, una opción para todos y 0 para salir."""
-    tabla = Table(box=box.SIMPLE, show_header=False, show_edge=False)
-    tabla.add_column("Opción", justify="right", style="bold cyan")
-    tabla.add_column("Descripción")
-    for esc in escenarios:
-        tabla.add_row(
-            str(esc["escenario"]),
-            f"Escenario {esc['escenario']} · {esc['condicion']} "
-            f"(λ = {esc['lam']:.1f}, μ = {esc['mu']:.1f})",
-        )
-    tabla.add_row(str(len(escenarios) + 1), "Todos los escenarios y comparación")
-    tabla.add_row("0", "Salir")
-    consola.print()
-    consola.print(
-        Panel(tabla, title="[bold]Menú[/bold]", border_style="cyan", expand=False)
-    )
-
-
 class PromptMenu(Prompt):
     """Prompt de rich con el aviso de opción inválida en español."""
 
@@ -96,6 +95,12 @@ def pedir_opcion(escenarios, consola=CONSOLA, stream=None):
     # Opciones válidas: 0 (salir), 1..n (un escenario) y n+1 (todos)
     opciones = [str(i) for i in range(len(escenarios) + 2)]
     return int(PromptMenu.ask("Elige una opción", choices=opciones, console=consola, stream=stream))
+
+
+def esperar_enter(consola=CONSOLA, stream=None):
+    """Pausa hasta que el usuario presiona Enter, para leer los resultados."""
+    consola.print()
+    consola.input("[dim]Presiona Enter para volver al menú[/dim] ", stream=stream)
 
 
 def mostrar_escenario(esc, resultado, consola=CONSOLA):
@@ -134,6 +139,45 @@ def mostrar_escenario(esc, resultado, consola=CONSOLA):
             expand=False,
         )
     )
+
+
+def mostrar_resumen_escenarios(pares, consola=CONSOLA):
+    """Paneles compactos lado a lado, uno por cada par (escenario, resultado)."""
+    paneles = []
+    for esc, r in pares:
+        # Cada línea: teórico / simulado / error, con el error coloreado
+        lineas = [
+            Text.assemble(("ρ  ", "bold"), barra_utilizacion(r["rho"], ancho=12)),
+            Text.assemble(("Clientes  ", "bold"), f"{r['clientes_atendidos']:,}"),
+        ]
+        for nombre, teorico, simulado, error in [
+            ("Wq", "Wq", "espera_promedio", "error_Wq_%"),
+            ("Lq", "Lq", "cola_promedio", "error_Lq_%"),
+        ]:
+            e = r[error]
+            lineas.append(
+                Text.assemble(
+                    (f"{nombre}  ", "bold"),
+                    (f"{r[teorico]:.3f}", "cyan"),
+                    " / ",
+                    (f"{r[simulado]:.3f}", "magenta"),
+                    " / ",
+                    (f"{e:.1f}%", color_error(e)),
+                )
+            )
+        paneles.append(
+            Panel(
+                Text("\n").join(lineas),
+                title=f"[bold]Escenario {esc['escenario']}[/bold]",
+                subtitle=esc["condicion"],
+                border_style="blue",
+                padding=(0, 1),
+                expand=False,
+            )
+        )
+    consola.print()
+    consola.print(Columns(paneles))
+    consola.print("[dim]Wq y Lq: teórico / simulado / error[/dim]")
 
 
 def mostrar_inestable(numero, lam, mu, consola=CONSOLA):
