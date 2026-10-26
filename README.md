@@ -9,7 +9,8 @@ Repositorio de prácticas de la asignatura **Simulación** (Ciclo 5, Carrera de 
 ├── Unidad1/
 │   ├── practica01/   # Construcción y simulación computacional de un modelo matemático
 │   ├── practica02/   # Comparación de modelos determinísticos, estocásticos, discretos y continuos
-│   └── practica03/   # Simulación de un sistema de líneas de espera M/M/1 mediante SimPy
+│   ├── practica03/   # Simulación de un sistema de líneas de espera M/M/1 mediante SimPy
+│   └── practica04/   # Modelo epidemiológico SIR con Python y SimPy
 ├── Unidad2/
 ├── Unidad3/
 ├── assets/           # Logo y estilo compartidos por los reportes técnicos
@@ -28,7 +29,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Si una práctica tiene su propio `requirements.txt` (por ejemplo, `practica03` usa SimPy y rich), se instala también desde su carpeta:
+Si una práctica tiene su propio `requirements.txt` (por ejemplo, `practica03` usa SimPy y rich, y `practica04` usa SimPy), se instala también desde su carpeta:
 
 ```bash
 pip install -r Unidad1/practica03/requirements.txt

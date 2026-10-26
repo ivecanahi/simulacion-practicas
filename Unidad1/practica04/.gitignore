@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Archivos generados por main.py
+resultados_python.csv
+grafica_sir_python.png
+reporte_python.html
+
+# Herramientas locales
+.atl/
