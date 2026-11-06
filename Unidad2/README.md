@@ -1,3 +1,7 @@
-# Unidad 2
+# Unidad 2 — Generación de números pseudoaleatorios y generación de variables aleatorias
 
-Pendiente — se agregará cuando el docente publique las prácticas de esta unidad.
+Resultado de aprendizaje: interpretar los resultados de una simulación.
+
+## Prácticas
+
+- [`practica05`](practica05/) — Implementación y análisis del Generador Congruencial Lineal en Python y Java.

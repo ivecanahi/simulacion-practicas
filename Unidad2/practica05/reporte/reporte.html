@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reporte Técnico — Práctica 05</title>
+<link rel="stylesheet" href="../../../assets/reporte.css">
+</head>
+<body>
+<table class="page">
+<thead><tr><td>
+  <div class="header">
+    <img src="../../../assets/logo_unl.png" alt="Universidad Nacional de Loja">
+    <span>FEIRNNR - Carrera de Computación</span>
+  </div>
+</td></tr></thead>
+<tbody><tr><td>
+
+<h1>Reporte Técnico de Actividades<br>Práctico-Experimentales Nro. 005</h1>
+
+<h2>1.&nbsp; Datos de Identificación del Estudiante y la Práctica</h2>
+<table class="ident">
+  <tr><td>Nombre del estudiante(s)</td><td>Ivett Anahi Zaragocin Mora</td></tr>
+  <tr><td>Asignatura</td><td>Simulación</td></tr>
+  <tr><td>Ciclo</td><td>5</td></tr>
+  <tr><td>Unidad</td><td>U2: Generación de números pseudoaleatorios y generación de variables aleatorias</td></tr>
+  <tr><td>Resultado de aprendizaje de la unidad</td><td>R2. Interpreta los resultados de una Simulación, bajo los principios de solidaridad, transparencia, responsabilidad y honestidad.</td></tr>
+  <tr><td>Práctica Nro.</td><td>05</td></tr>
+  <tr><td>Título de la Práctica</td><td>Implementación y análisis del Generador Congruencial Lineal en Python y Java</td></tr>
+  <tr><td>Nombre del Docente</td><td>José Oswaldo Guamán Quinche</td></tr>
+  <tr><td>Fecha</td><td>29 y 30 de octubre de 2026</td></tr>
+  <tr><td>Horario</td><td>Jueves 10h30 a 11h30 · Viernes 07h30 a 09h30</td></tr>
+  <tr><td>Lugar</td><td>Aula</td></tr>
+  <tr><td>Tiempo planificado en el Sílabo</td><td>3 horas</td></tr>
+</table>
+
+<h2>2.&nbsp; Objetivo(s) de la Práctica</h2>
+<p><b>Objetivo general:</b> comprender el funcionamiento de un generador pseudoaleatorio mediante la implementación del método LCG.</p>
+<p><b>Objetivos específicos:</b></p>
+<ol>
+  <li>Implementar un generador LCG en Python.</li>
+  <li>Implementar el mismo algoritmo en Java.</li>
+  <li>Comparar las secuencias generadas y analizar sus propiedades.</li>
+</ol>
+
+<h2>3.&nbsp; Materiales, Reactivos, Equipos y Herramientas</h2>
+<h3>Materiales y reactivos:</h3>
+<ul class="square">
+  <li>Python 3.12 y Matplotlib 3.9 para las gráficas [10].</li>
+  <li>Java (OpenJDK 21).</li>
+  <li>Parámetros de la guía: a = 1664525, c = 1013904223, m = 2<sup>32</sup> y semilla X<sub>0</sub> = 12345.</li>
+</ul>
+<h3>Equipos y herramientas:</h3>
+<ul class="square">
+  <li>Computador con sistema operativo Linux.</li>
+  <li>Editor de código y Git/GitHub para el control de versiones.</li>
+</ul>
+
+<h2>4.&nbsp; Marco Conceptual</h2>
+
+<h3>4.1 Números pseudoaleatorios</h3>
+<p>Una simulación estocástica necesita números aleatorios uniformes en [0, 1), a partir de los cuales se generan las demás variables aleatorias [1], [2]. Los computadores no producen azar verdadero: usan algoritmos <b>deterministas</b> que, a partir de un valor inicial llamado <b>semilla</b>, producen una secuencia que <i>parece</i> aleatoria y supera pruebas estadísticas de uniformidad e independencia. Por eso se llaman <b>pseudoaleatorios</b> [3].</p>
+
+<h3>4.2 Generador Congruencial Lineal (LCG)</h3>
+<p>Propuesto por Lehmer [4], es el generador más conocido. Usa la relación recursiva:</p>
+<p class="formula">X<sub>n+1</sub> = (a · X<sub>n</sub> + c) mod m, &nbsp;&nbsp; U<sub>n</sub> = X<sub>n</sub> / m</p>
+<p>donde <i>a</i> es el multiplicador, <i>c</i> el incremento, <i>m</i> el módulo y <i>X<sub>0</sub></i> la semilla. Como X<sub>n</sub> solo puede tomar valores entre 0 y m − 1, la secuencia se repite tarde o temprano. Los parámetros de la guía (a = 1664525, c = 1013904223, m = 2<sup>32</sup>) son los recomendados en <i>Numerical Recipes</i> [5].</p>
+
+<h3>4.3 Período y teorema de Hull-Dobell</h3>
+<p>El <b>período</b> es la cantidad de valores distintos que se generan antes de que la secuencia se repita. Su valor máximo es <i>m</i>. Hull y Dobell demostraron que un LCG con c ≠ 0 alcanza el período completo para cualquier semilla si y solo si [6]:</p>
+<ol>
+  <li><i>c</i> y <i>m</i> son primos relativos.</li>
+  <li><i>a</i> − 1 es divisible por todos los factores primos de <i>m</i>.</li>
+  <li>Si <i>m</i> es múltiplo de 4, <i>a</i> − 1 también lo es.</li>
+</ol>
+<p>Cuando m es una potencia de 2, el bit k menos significativo de X<sub>n</sub> tiene un período de solo 2<sup>k</sup>; el último bit simplemente alterna. Además, los puntos (U<sub>n</sub>, U<sub>n+1</sub>, …) caen sobre un número finito de hiperplanos [7]. Por estas limitaciones el LCG sirve para fines didácticos y simulaciones sencillas, pero no para criptografía [3], [8].</p>
+
+<h3>4.4 Pruebas de calidad</h3>
+<p>Un buen generador debe producir valores <b>uniformes</b> (media 0.5 y varianza 1/12 ≈ 0.0833) e <b>independientes</b> [1], [2]. La uniformidad se contrasta con la prueba chi-cuadrado: con 10 intervalos y α = 0.05, se acepta si χ² &lt; 16.919. La independencia se estima con la autocorrelación de retardo 1, que debe ser cercana a 0.</p>
+
+<h2>5.&nbsp; Procedimiento / Metodología Ejecutada</h2>
+<ol>
+  <li><b>Selección de parámetros.</b> a = 1664525, c = 1013904223, m = 2<sup>32</sup> y semilla = 12345.</li>
+  <li><b>Implementación en Python.</b> Se programó la clase <code>LCG</code> en <code>model.py</code>, con los métodos <code>next_int()</code>, <code>next_float()</code> y <code>generate(n)</code>. Python usa enteros de precisión arbitraria, así que <code>(a*x + c) % m</code> se calcula sin desbordamiento. Se generaron 10 000 valores.</li>
+  <li><b>Implementación en Java.</b> Se programó la clase <code>Lcg</code> en <code>java/Lcg.java</code>. Como Java no tiene enteros sin signo de 32 bits, se usó <code>long</code> (64 bits): a·X &lt; 2<sup>21</sup>·2<sup>32</sup> = 2<sup>53</sup>, por lo que el producto cabe sin desbordarse, y <code>mod 2<sup>32</sup></code> se calcula con la máscara <code>&amp; 0xFFFFFFFF</code>. <code>Main.java</code> guarda los valores en un CSV y, en modo <code>periodo</code>, recorre el ciclo completo.</li>
+  <li><b>Comparación.</b> <code>main.py</code> compila y ejecuta Java, lee su CSV y compara valor a valor con Python. Se armó la tabla de las primeras 20 observaciones.</li>
+  <li><b>Gráficas.</b> Secuencia U<sub>n</sub>, histograma, diagrama de pares consecutivos y efecto de los parámetros.</li>
+  <li><b>Análisis del período.</b> Se verificó el teorema de Hull-Dobell, se midió el período completo en Java y se calculó el período de los bits bajos. Además, se probaron parámetros inadecuados con m = 16.</li>
+  <li><b>Cambio de semilla.</b> Se repitió todo con las semillas 54321 y 2026.</li>
+  <li><b>Verificación.</b> Se escribieron 16 pruebas unitarias con <code>unittest</code>, entre ellas una que compara Python y Java con las semillas 0, 12345 y 2<sup>32</sup> − 1.</li>
+</ol>
+
+<h2>6.&nbsp; Resultados</h2>
+<h3>6.1 Comparación de las primeras 20 observaciones</h3>
+<table class="data">
+  <tr><th>n</th><th>X<sub>n</sub> Python</th><th>X<sub>n</sub> Java</th><th>U<sub>n</sub> Python</th><th>U<sub>n</sub> Java</th><th>¿Igual?</th></tr>
+  <tr><td>1</td><td>87628868</td><td>87628868</td><td>0.0204026857</td><td>0.0204026857</td><td>Sí</td></tr>
+  <tr><td>2</td><td>71072467</td><td>71072467</td><td>0.0165478482</td><td>0.0165478482</td><td>Sí</td></tr>
+  <tr><td>3</td><td>2332836374</td><td>2332836374</td><td>0.5431557945</td><td>0.5431557945</td><td>Sí</td></tr>
+  <tr><td>4</td><td>2726892157</td><td>2726892157</td><td>0.6349040561</td><td>0.6349040561</td><td>Sí</td></tr>
+  <tr><td>5</td><td>3908547000</td><td>3908547000</td><td>0.9100295138</td><td>0.9100295138</td><td>Sí</td></tr>
+  <tr><td>6</td><td>483019191</td><td>483019191</td><td>0.1124616691</td><td>0.1124616691</td><td>Sí</td></tr>
+  <tr><td>7</td><td>2129828778</td><td>2129828778</td><td>0.4958894053</td><td>0.4958894053</td><td>Sí</td></tr>
+  <tr><td>8</td><td>2355140353</td><td>2355140353</td><td>0.5483488443</td><td>0.5483488443</td><td>Sí</td></tr>
+  <tr><td>9</td><td>2560230508</td><td>2560230508</td><td>0.5961001171</td><td>0.5961001171</td><td>Sí</td></tr>
+  <tr><td>10</td><td>3364893915</td><td>3364893915</td><td>0.7834504161</td><td>0.7834504161</td><td>Sí</td></tr>
+  <tr><td>11</td><td>171172990</td><td>171172990</td><td>0.0398543174</td><td>0.0398543174</td><td>Sí</td></tr>
+  <tr><td>12</td><td>3194601925</td><td>3194601925</td><td>0.7438012224</td><td>0.7438012224</td><td>Sí</td></tr>
+  <tr><td>13</td><td>4148119648</td><td>4148119648</td><td>0.9658093676</td><td>0.9658093676</td><td>Sí</td></tr>
+  <tr><td>14</td><td>316399679</td><td>316399679</td><td>0.0736675409</td><td>0.0736675409</td><td>Sí</td></tr>
+  <tr><td>15</td><td>3004788882</td><td>3004788882</td><td>0.6996069294</td><td>0.6996069294</td><td>Sí</td></tr>
+  <tr><td>16</td><td>1976948425</td><td>1976948425</td><td>0.4602941743</td><td>0.4602941743</td><td>Sí</td></tr>
+  <tr><td>17</td><td>1702883732</td><td>1702883732</td><td>0.3964835154</td><td>0.3964835154</td><td>Sí</td></tr>
+  <tr><td>18</td><td>4121112547</td><td>4121112547</td><td>0.9595212869</td><td>0.9595212869</td><td>Sí</td></tr>
+  <tr><td>19</td><td>1744294886</td><td>1744294886</td><td>0.4061253010</td><td>0.4061253010</td><td>Sí</td></tr>
+  <tr><td>20</td><td>4092090893</td><td>4092090893</td><td>0.9527641565</td><td>0.9527641565</td><td>Sí</td></tr>
+</table>
+<p>Ambas implementaciones producen exactamente la misma secuencia. El primer valor se puede verificar a mano: (1664525 · 12345 + 1013904223) mod 2<sup>32</sup> = 21 562 465 348 − 5 · 4 294 967 296 = <b>87 628 868</b>, y U<sub>1</sub> = 87 628 868 / 2<sup>32</sup> = 0.0204026857. Al comparar los <b>10 000</b> valores de cada semilla, coincidieron los 10 000 en las tres semillas probadas.</p>
+
+<h3>6.2 Gráfica de la secuencia</h3>
+<figure>
+  <img src="../resultados/secuencia.png" alt="Secuencia U(n)">
+  <figcaption>Figura 1. Primeros 100 valores de U<sub>n</sub> en Python (círculos) y Java (cruces): las marcas se superponen.</figcaption>
+</figure>
+<figure>
+  <img src="../resultados/distribucion.png" alt="Histograma y pares consecutivos">
+  <figcaption>Figura 2. Histograma de los 10 000 valores y diagrama de pares (U<sub>n</sub>, U<sub>n+1</sub>).</figcaption>
+</figure>
+<p>Los valores saltan por todo el intervalo [0, 1) sin un patrón visible. El histograma es casi plano alrededor de la frecuencia esperada (1000 por intervalo) y los pares consecutivos llenan el cuadrado de forma pareja. Con 10 000 puntos no se distinguen los hiperplanos de Marsaglia, porque con m = 2<sup>32</sup> están muy juntos [7].</p>
+
+<h3>6.3 Análisis del período</h3>
+<table class="data">
+  <tr><th class="left">Condición de Hull-Dobell</th><th>Verificación</th><th>¿Cumple?</th></tr>
+  <tr><td class="left">mcd(c, m) = 1</td><td>c es impar y m = 2<sup>32</sup></td><td>Sí</td></tr>
+  <tr><td class="left">a − 1 divisible por los primos de m</td><td>1664524 / 2 = 832262</td><td>Sí</td></tr>
+  <tr><td class="left">4 | m ⇒ 4 | (a − 1)</td><td>1664524 / 4 = 416131</td><td>Sí</td></tr>
+</table>
+<p>Como se cumplen las tres condiciones, el período teórico es m = 2<sup>32</sup> = 4 294 967 296. El programa en Java recorrió el ciclo completo desde la semilla 12345 y volvió a ella después de exactamente <b>4 294 967 296</b> pasos, lo que confirma el teorema. Sin embargo, los bits bajos tienen períodos mucho más cortos:</p>
+<table class="data">
+  <tr><th>Bits menos significativos (k)</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th></tr>
+  <tr><td>Período de X<sub>n</sub> mod 2<sup>k</sup></td><td>2</td><td>4</td><td>8</td><td>16</td><td>32</td><td>64</td><td>128</td><td>256</td></tr>
+</table>
+<p>Por ejemplo, X<sub>n</sub> alterna entre par e impar (87628868, 71072467, 2332836374, 2726892157, …). Por eso conviene usar U<sub>n</sub> (que depende de los bits altos) y no X<sub>n</sub> mod k para generar enteros pequeños [3].</p>
+
+<h3>6.4 Parámetros inadecuados</h3>
+<figure>
+  <img src="../resultados/periodo_parametros.png" alt="Efecto de los parámetros">
+  <figcaption>Figura 3. Secuencias con m = 16 y distintos parámetros.</figcaption>
+</figure>
+<table class="data">
+  <tr><th>a</th><th>c</th><th>X<sub>0</sub></th><th>Hull-Dobell</th><th>Período</th><th class="left">Secuencia</th></tr>
+  <tr><td>5</td><td>3</td><td>7</td><td>Sí</td><td>16</td><td class="left">7, 6, 1, 8, 11, 10, 5, 12, 15, 14, …</td></tr>
+  <tr><td>3</td><td>3</td><td>1</td><td>No (a − 1 no es múltiplo de 4)</td><td>8</td><td class="left">1, 6, 5, 2, 9, 14, 13, 10, 1, 6, …</td></tr>
+  <tr><td>5</td><td>4</td><td>1</td><td>No (c par)</td><td>2</td><td class="left">1, 9, 1, 9, …</td></tr>
+  <tr><td>4</td><td>2</td><td>1</td><td>No (a par)</td><td>1</td><td class="left">1, 6, 10, 10, 10, …</td></tr>
+  <tr><td>1</td><td>0</td><td>5</td><td>No</td><td>1</td><td class="left">5, 5, 5, …</td></tr>
+</table>
+<p>Con parámetros que cumplen Hull-Dobell se recorren los 16 valores posibles. Si se incumple una sola condición, el período cae a la mitad (8), a 2 o incluso a 1, y la secuencia deja de ser útil.</p>
+
+<h3>6.5 Cambio de semilla</h3>
+<figure>
+  <img src="../resultados/semillas.png" alt="Efecto de la semilla">
+  <figcaption>Figura 4. Primeros 50 valores con las semillas 12345, 54321 y 2026.</figcaption>
+</figure>
+<table class="data">
+  <tr><th>Semilla</th><th>U<sub>1</sub></th><th>Media</th><th>Varianza</th><th>χ² (crítico 16.919)</th><th>Autocorrelación r(1)</th><th>Python = Java</th></tr>
+  <tr><td>12345</td><td>0.0204</td><td>0.4988</td><td>0.08302</td><td>14.16</td><td>−0.0153</td><td>10 000 / 10 000</td></tr>
+  <tr><td>54321</td><td>0.2883</td><td>0.4989</td><td>0.08360</td><td>7.23</td><td>−0.0020</td><td>10 000 / 10 000</td></tr>
+  <tr><td>2026</td><td>0.0212</td><td>0.4991</td><td>0.08451</td><td>7.52</td><td>0.0021</td><td>10 000 / 10 000</td></tr>
+</table>
+<p>Cada semilla produce una secuencia distinta, pero con las mismas propiedades estadísticas: la media es cercana a 0.5, la varianza a 1/12 = 0.0833, las tres pasan la prueba chi-cuadrado y la autocorrelación es casi 0. Ningún valor se repite en los 10 000, como era de esperar con un período de 2<sup>32</sup>. En los tres casos Python y Java vuelven a coincidir. En realidad, como el período es completo, todas las semillas recorren el <b>mismo ciclo</b> de 2<sup>32</sup> valores; la semilla solo elige el punto de partida.</p>
+
+<h2>7.&nbsp; Preguntas de Control</h2>
+<ol>
+  <li><p class="question">¿Qué significa pseudoaleatorio?</p>
+  <p>Que los números parecen aleatorios, porque pasan pruebas de uniformidad e independencia, pero los produce un algoritmo determinista. Conociendo a, c, m y la semilla, la secuencia se puede predecir y repetir exactamente [3]. En esta práctica, Python y Java obtuvieron la misma secuencia justamente porque no hay azar real.</p></li>
+  <li><p class="question">¿Qué función cumple la semilla?</p>
+  <p>Es el valor inicial X<sub>0</sub> y determina toda la secuencia. Con la misma semilla se obtiene siempre la misma secuencia, lo que permite <b>reproducir</b> y verificar una simulación. Con otra semilla se obtiene otra secuencia (un punto de partida distinto del ciclo) con las mismas propiedades estadísticas (sección 6.5).</p></li>
+  <li><p class="question">¿Qué significa período?</p>
+  <p>Es la cantidad de números distintos que genera el algoritmo antes de que la secuencia se repita. Su máximo es m. Con los parámetros de la guía el período es 2<sup>32</sup> = 4 294 967 296, verificado en Java. Una simulación debería usar muchos menos valores que el período.</p></li>
+  <li><p class="question">¿Qué ocurre si se utilizan parámetros inadecuados?</p>
+  <p>El período se acorta y la secuencia se vuelve predecible o constante. Con m = 16: a par (a = 4) lleva a un valor fijo (período 1), c par (c = 4) produce solo 1, 9, 1, 9 (período 2) y a − 1 no múltiplo de 4 reduce el período a la mitad (8). Con a = 1 y c = 0 el número nunca cambia (sección 6.4).</p></li>
+  <li><p class="question">¿Qué ventaja tiene implementar el mismo algoritmo en dos lenguajes?</p>
+  <p>Permite <b>verificar</b> la implementación: si dos programas independientes producen los mismos 10 000 valores, es muy poco probable que ambos tengan el mismo error [9]. Además, muestra detalles propios de cada lenguaje que pueden cambiar el resultado, como el desbordamiento de enteros en Java (que se resolvió con <code>long</code> y una máscara) o el formato decimal según la configuración regional. También garantiza que una simulación sea portable y reproducible en distintas plataformas.</p></li>
+</ol>
+
+<h2>8.&nbsp; Conclusiones</h2>
+<ul class="square">
+  <li>Las implementaciones en Python y Java son funcionales y producen exactamente la misma secuencia: coincidieron los 10 000 valores en cada una de las tres semillas probadas.</li>
+  <li>Los parámetros de la guía cumplen el teorema de Hull-Dobell, por lo que el generador tiene período completo; Java lo confirmó recorriendo los 4 294 967 296 valores del ciclo.</li>
+  <li>La secuencia tiene buenas propiedades estadísticas para 10 000 valores: media ≈ 0.5, varianza ≈ 1/12, χ² menor al valor crítico y autocorrelación ≈ 0 en las tres semillas.</li>
+  <li>La calidad del LCG depende por completo de los parámetros: si se incumple una condición de Hull-Dobell, el período puede caer hasta 1.</li>
+  <li>El LCG con m = 2<sup>32</sup> tiene debilidades: los bits bajos tienen períodos cortos y los puntos caen en hiperplanos. Es adecuado para aprender y para simulaciones sencillas, pero no para criptografía.</li>
+</ul>
+
+<h2>9.&nbsp; Recomendaciones</h2>
+<ul class="square">
+  <li>Fijar y documentar la semilla para que la simulación sea reproducible.</li>
+  <li>Verificar Hull-Dobell (o usar parámetros publicados [5], [8]) antes de usar un LCG.</li>
+  <li>En Java, usar <code>long</code> y una máscara, o <code>Integer.toUnsignedLong</code>, para evitar errores por desbordamiento de enteros con signo.</li>
+  <li>Usar U<sub>n</sub> (bits altos) y no X<sub>n</sub> mod k para generar enteros pequeños.</li>
+  <li>Para simulaciones grandes, usar generadores modernos como Mersenne Twister o PCG64 (el de NumPy), con períodos mucho mayores.</li>
+</ul>
+
+<h2>10.&nbsp; Bibliografía / Referencias</h2>
+<div class="refs">
+  <p>[1] A. M. Law, <i>Simulation Modeling and Analysis</i>, 5th ed. New York, NY, USA: McGraw-Hill, 2015.</p>
+  <p>[2] J. Banks, J. S. Carson, B. L. Nelson y D. M. Nicol, <i>Discrete-Event System Simulation</i>, 5th ed. Upper Saddle River, NJ, USA: Pearson, 2010.</p>
+  <p>[3] D. E. Knuth, <i>The Art of Computer Programming, Vol. 2: Seminumerical Algorithms</i>, 3rd ed. Reading, MA, USA: Addison-Wesley, 1997.</p>
+  <p>[4] D. H. Lehmer, “Mathematical methods in large-scale computing units,” en <i>Proc. 2nd Symp. on Large-Scale Digital Calculating Machinery</i>, Cambridge, MA, USA: Harvard University Press, 1951, pp. 141–146.</p>
+  <p>[5] W. H. Press, S. A. Teukolsky, W. T. Vetterling y B. P. Flannery, <i>Numerical Recipes: The Art of Scientific Computing</i>, 3rd ed. Cambridge, U.K.: Cambridge University Press, 2007.</p>
+  <p>[6] T. E. Hull y A. R. Dobell, “Random number generators,” <i>SIAM Review</i>, vol. 4, no. 3, pp. 230–254, 1962.</p>
+  <p>[7] G. Marsaglia, “Random numbers fall mainly in the planes,” <i>Proceedings of the National Academy of Sciences</i>, vol. 61, no. 1, pp. 25–28, 1968.</p>
+  <p>[8] P. L’Ecuyer, “Tables of linear congruential generators of different sizes and good lattice structure,” <i>Mathematics of Computation</i>, vol. 68, no. 225, pp. 249–260, 1999.</p>
+  <p>[9] R. G. Sargent, “Verification and validation of simulation models,” <i>Journal of Simulation</i>, vol. 7, no. 1, pp. 12–24, 2013.</p>
+  <p>[10] J. D. Hunter, “Matplotlib: A 2D graphics environment,” <i>Computing in Science &amp; Engineering</i>, vol. 9, no. 3, pp. 90–95, 2007.</p>
+  <p>[11] J. O. Guamán Quinche, “Diapositivas semana 5 – Generación de números pseudoaleatorios,” Universidad Nacional de Loja, 2026.</p>
+</div>
+
+<h2 class="page-break">11.&nbsp; Anexos</h2>
+<h3>Anexo A. Código fuente</h3>
+<p>El código completo está en el repositorio <b>github.com/ivecanahi/simulacion-practicas</b>, carpeta <code>Unidad2/practica05</code>. Se ejecuta con:</p>
+<pre>pip install -r requirements.txt
+cd Unidad2/practica05
+python3 main.py                  # Python + Java, comparación, gráficas y período
+python3 main.py --sin-periodo    # omite el recorrido de 2^32 valores
+python3 -m unittest -v           # pruebas</pre>
+<p>Generador en Python (<code>model.py</code>):</p>
+<pre>class LCG:
+    def __init__(self, seed=12345, a=1664525, c=1013904223, m=2**32):
+        self.a, self.c, self.m = a, c, m
+        self.state = seed
+
+    def next_int(self):
+        self.state = (self.a * self.state + self.c) % self.m
+        return self.state
+
+    def next_float(self):
+        return self.next_int() / self.m</pre>
+<p>Generador en Java (<code>java/Lcg.java</code>):</p>
+<pre>public final class Lcg {
+    public static final long A = 1664525L;
+    public static final long C = 1013904223L;
+    public static final long M = 1L &lt;&lt; 32;
+    private static final long MASK = M - 1;   // x mod 2^32 == x &amp; (2^32 - 1)
+    private long state;
+
+    public Lcg(long seed) { this.state = seed; }
+
+    public long nextInt() {
+        state = (A * state + C) &amp; MASK;       // a·X &lt; 2^53: no se desborda
+        return state;
+    }
+
+    public double nextFloat() { return (double) nextInt() / M; }
+}</pre>
+
+<h3>Anexo B. Salida del programa (resumen)</h3>
+<pre>Semilla 12345: 10000/10000 valores idénticos entre Python y Java
+Semilla 54321: 10000/10000 valores idénticos entre Python y Java
+Semilla 2026: 10000/10000 valores idénticos entre Python y Java
+
+Teorema de Hull-Dobell (a, c, m de la guía):
+  [✓] c y m son primos relativos
+  [✓] a - 1 divisible por todo primo de m
+  [✓] si 4 divide a m, 4 divide a a - 1
+  Período medido en Java: 4294967296 (= 2^32: True)
+
+Período de los k bits menos significativos:
+  k=1: 2, k=2: 4, k=3: 8, k=4: 16, k=5: 32, k=6: 64, k=7: 128, k=8: 256</pre>
+
+<h3>Anexo C. Resultado de las pruebas unitarias</h3>
+<pre>$ python3 -m unittest
+................
+----------------------------------------------------------------------
+Ran 16 tests
+
+OK</pre>
+
+</td></tr></tbody>
+</table>
+</body>
+</html>
