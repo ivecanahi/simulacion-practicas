@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reporte Técnico — Práctica 06</title>
+<link rel="stylesheet" href="../../../assets/reporte.css">
+</head>
+<body>
+<table class="page">
+<thead><tr><td>
+  <div class="header">
+    <img src="../../../assets/logo_unl.png" alt="Universidad Nacional de Loja">
+    <span>FEIRNNR - Carrera de Computación</span>
+  </div>
+</td></tr></thead>
+<tbody><tr><td>
+
+<h1>Reporte Técnico de Actividades<br>Práctico-Experimentales Nro. 006</h1>
+
+<h2>1.&nbsp; Datos de Identificación del Estudiante y la Práctica</h2>
+<table class="ident">
+  <tr><td>Nombre del estudiante(s)</td><td>Ivett Anahi Zaragocin Mora</td></tr>
+  <tr><td>Asignatura</td><td>Simulación</td></tr>
+  <tr><td>Ciclo</td><td>5</td></tr>
+  <tr><td>Unidad</td><td>U2: Generación de números pseudoaleatorios y generación de variables aleatorias</td></tr>
+  <tr><td>Resultado de aprendizaje de la unidad</td><td>R2. Interpreta los resultados de una Simulación, bajo los principios de solidaridad, transparencia, responsabilidad y honestidad.</td></tr>
+  <tr><td>Práctica Nro.</td><td>06</td></tr>
+  <tr><td>Título de la Práctica</td><td>Validación estadística de números pseudoaleatorios mediante Chi-cuadrado y Kolmogorov-Smirnov</td></tr>
+  <tr><td>Nombre del Docente</td><td>José Oswaldo Guamán Quinche</td></tr>
+  <tr><td>Fecha</td><td>05 y 06 de noviembre de 2026</td></tr>
+  <tr><td>Horario</td><td>Jueves 10h30 a 11h30 · Viernes 07h30 a 09h30</td></tr>
+  <tr><td>Lugar</td><td>Aula</td></tr>
+  <tr><td>Tiempo planificado en el Sílabo</td><td>3 horas</td></tr>
+</table>
+
+<h2>2.&nbsp; Objetivo(s) de la Práctica</h2>
+<p><b>Objetivo general:</b> evaluar la calidad estadística de una secuencia de números pseudoaleatorios mediante pruebas de bondad de ajuste, utilizando los métodos Chi-cuadrado y Kolmogorov-Smirnov para determinar si los valores generados presentan un comportamiento compatible con una distribución uniforme en el intervalo [0, 1].</p>
+<p><b>Objetivos específicos:</b></p>
+<ol>
+  <li>Generar secuencias de números pseudoaleatorios utilizando el método congruencial lineal (LCG).</li>
+  <li>Aplicar la prueba estadística Chi-cuadrado para evaluar la uniformidad de las frecuencias observadas.</li>
+  <li>Aplicar la prueba Kolmogorov-Smirnov para comparar la distribución empírica con la distribución uniforme teórica.</li>
+  <li>Interpretar los estadísticos de prueba y sus respectivos valores p.</li>
+  <li>Comparar el comportamiento estadístico de diferentes configuraciones del generador pseudoaleatorio.</li>
+</ol>
+
+<h2>3.&nbsp; Materiales, Reactivos, Equipos y Herramientas</h2>
+<h3>Materiales y reactivos:</h3>
+<ul class="square">
+  <li>Computador.</li>
+  <li>Python 3.12 con Matplotlib 3.9 para las gráficas [9].</li>
+  <li>Java (OpenJDK 21).</li>
+  <li>Generador LCG con los parámetros de la práctica 5: a = 1664525, c = 1013904223, m = 2<sup>32</sup>, semilla = 12345.</li>
+</ul>
+<h3>Equipos y herramientas:</h3>
+<ul class="square">
+  <li>Sistema operativo Linux, Visual Studio Code y Git/GitHub.</li>
+  <li>Los valores p se programaron desde cero en ambos lenguajes, sin bibliotecas estadísticas. En lugar de Pandas se usó el módulo <code>csv</code> de Python, suficiente para guardar las tablas. SciPy se usó solo para validar los valores p (sección 5).</li>
+</ul>
+
+<h2>4.&nbsp; Marco Conceptual</h2>
+
+<h3>4.1 Números pseudoaleatorios y prueba de hipótesis</h3>
+<p>Los números pseudoaleatorios se generan con algoritmos deterministas que buscan reproducir las propiedades estadísticas de una secuencia aleatoria [1]. La propiedad básica es la <b>uniformidad</b> en [0, 1), que se evalúa con una prueba de hipótesis [2]:</p>
+<p class="formula">H<sub>0</sub>: U ~ U(0, 1) &nbsp;&nbsp;&nbsp; H<sub>1</sub>: U ≁ U(0, 1) &nbsp;&nbsp;&nbsp; α = 0.05</p>
+<p>El <b>valor p</b> es la probabilidad de obtener un estadístico igual o más extremo que el observado <i>si H<sub>0</sub> fuera cierta</i>. Si p &lt; α se rechaza H<sub>0</sub>; si p ≥ α no hay evidencia suficiente para rechazarla [3].</p>
+
+<h3>4.2 Generador congruencial lineal</h3>
+<p class="formula">X<sub>n+1</sub> = (a · X<sub>n</sub> + c) mod m, &nbsp;&nbsp; U<sub>n</sub> = X<sub>n</sub> / m</p>
+<p>donde X<sub>n</sub> es el valor actual (al inicio, la semilla), <i>a</i> el multiplicador, <i>c</i> el incremento y <i>m</i> el módulo [4].</p>
+
+<h3>4.3 Prueba Chi-cuadrado</h3>
+<p>Se divide [0, 1) en k = 10 intervalos iguales y se compara la frecuencia observada O<sub>i</sub> con la esperada E<sub>i</sub> = n / k [2]:</p>
+<p class="formula">χ² = Σ<sub>i=1..k</sub> (O<sub>i</sub> − E<sub>i</sub>)² / E<sub>i</sub>, &nbsp;&nbsp; gl = k − 1 = 9</p>
+<p>El valor p es P(χ²<sub>9</sub> &gt; χ²<sub>obs</sub>) y se calcula con la función gamma incompleta regularizada Q(gl/2, χ²/2) [5]. El valor crítico para α = 0.05 y 9 gl es 16.919.</p>
+
+<h3>4.4 Prueba Kolmogorov-Smirnov</h3>
+<p>Compara la función de distribución acumulada empírica F<sub>n</sub>(x) con la teórica F(x) = x de la uniforme [6]. Con los datos ordenados u<sub>(1)</sub> ≤ … ≤ u<sub>(n)</sub>:</p>
+<p class="formula">D<sup>+</sup> = max (i/n − u<sub>(i)</sub>), &nbsp; D<sup>−</sup> = max (u<sub>(i)</sub> − (i−1)/n), &nbsp; D = sup |F<sub>n</sub>(x) − F(x)| = max(D<sup>+</sup>, D<sup>−</sup>)</p>
+<p>El valor p se obtiene de la distribución de Kolmogorov, Q(λ) = 2 Σ<sub>j≥1</sub> (−1)<sup>j−1</sup> e<sup>−2j²λ²</sup>, con la corrección de Stephens λ = (√n + 0.12 + 0.11/√n) · D [5], [7]. A diferencia de Chi-cuadrado, KS no agrupa los datos en intervalos: usa cada valor.</p>
+
+<h2>5.&nbsp; Procedimiento / Metodología Ejecutada</h2>
+<ol>
+  <li><b>Actividad 1, generación con LCG.</b> Se programó el generador en Python (<code>model.py</code>) y en Java (<code>java/Lcg.java</code>) siguiendo los pasos de la guía. Se generaron 10 000 números con la semilla 12345 y se guardaron en <code>lcg_python.csv</code> y <code>lcg_java.csv</code>. En Java, el producto a·X puede desbordar un <code>long</code>, pero como m es potencia de 2 y divide a 2<sup>64</sup>, la máscara <code>&amp; (m − 1)</code> da el resultado exacto.</li>
+  <li><b>Algoritmo 2, Chi-cuadrado.</b> Se implementó siguiendo los 14 pasos de la guía (<code>chi_square_test</code> en Python y <code>PruebasEstadisticas.chiCuadrado</code> en Java).</li>
+  <li><b>Algoritmo 3, Kolmogorov-Smirnov.</b> Se ordenaron los datos, se calcularon D<sup>+</sup>, D<sup>−</sup> y D, el valor p y la decisión, y se graficaron F<sub>n</sub>(x) y F(x).</li>
+  <li><b>Valores p sin bibliotecas.</b> Java no tiene función gamma, así que se implementó con la aproximación de Lanczos. Los valores p se validaron contra SciPy [8]: Chi-cuadrado coincide en todas las cifras; KS difiere en la tercera cifra decimal, porque SciPy usa la distribución exacta y aquí se usó la asintótica.</li>
+  <li><b>Configuraciones del generador.</b> Se aplicaron ambas pruebas a cinco configuraciones: la de la guía, RANDU [10], un módulo pequeño (m = 256), un incremento fijo (a = 1) y un multiplicador par.</li>
+  <li><b>Experimentos adicionales.</b> Efecto del tamaño de la muestra (n = 100 a 100 000) y aplicación de las pruebas a 200 bloques consecutivos de 1000 números.</li>
+  <li><b>Tabla de resultados esperados.</b> La guía pide estimar π con N = 1 000 a 1 000 000 y medir el tiempo en Python y Java. Se estimó π por Monte Carlo usando pares (U<sub>2i−1</sub>, U<sub>2i</sub>) del LCG: π ≈ 4 · (puntos con x² + y² ≤ 1) / N.</li>
+  <li><b>Verificación.</b> Se escribieron 18 pruebas unitarias con <code>unittest</code>, entre ellas cálculos a mano, valores críticos tabulados y la comparación Python/Java.</li>
+</ol>
+
+<h2>6.&nbsp; Resultados</h2>
+
+<h3>6.1 Secuencia generada en Python y Java</h3>
+<table class="data">
+  <tr><th>n</th><th>U<sub>n</sub> Python</th><th>U<sub>n</sub> Java</th><th>¿Igual?</th></tr>
+  <tr><td>1</td><td>0.0204026857</td><td>0.0204026857</td><td>Sí</td></tr>
+  <tr><td>2</td><td>0.0165478482</td><td>0.0165478482</td><td>Sí</td></tr>
+  <tr><td>3</td><td>0.5431557945</td><td>0.5431557945</td><td>Sí</td></tr>
+  <tr><td>4</td><td>0.6349040561</td><td>0.6349040561</td><td>Sí</td></tr>
+  <tr><td>5</td><td>0.9100295138</td><td>0.9100295138</td><td>Sí</td></tr>
+  <tr><td>6</td><td>0.1124616691</td><td>0.1124616691</td><td>Sí</td></tr>
+  <tr><td>7</td><td>0.4958894053</td><td>0.4958894053</td><td>Sí</td></tr>
+  <tr><td>8</td><td>0.5483488443</td><td>0.5483488443</td><td>Sí</td></tr>
+  <tr><td>9</td><td>0.5961001171</td><td>0.5961001171</td><td>Sí</td></tr>
+  <tr><td>10</td><td>0.7834504161</td><td>0.7834504161</td><td>Sí</td></tr>
+  <tr><td>11</td><td>0.0398543174</td><td>0.0398543174</td><td>Sí</td></tr>
+  <tr><td>12</td><td>0.7438012224</td><td>0.7438012224</td><td>Sí</td></tr>
+  <tr><td>13</td><td>0.9658093676</td><td>0.9658093676</td><td>Sí</td></tr>
+  <tr><td>14</td><td>0.0736675409</td><td>0.0736675409</td><td>Sí</td></tr>
+  <tr><td>15</td><td>0.6996069294</td><td>0.6996069294</td><td>Sí</td></tr>
+  <tr><td>16</td><td>0.4602941743</td><td>0.4602941743</td><td>Sí</td></tr>
+  <tr><td>17</td><td>0.3964835154</td><td>0.3964835154</td><td>Sí</td></tr>
+  <tr><td>18</td><td>0.9595212869</td><td>0.9595212869</td><td>Sí</td></tr>
+  <tr><td>19</td><td>0.4061253010</td><td>0.4061253010</td><td>Sí</td></tr>
+  <tr><td>20</td><td>0.9527641565</td><td>0.9527641565</td><td>Sí</td></tr>
+</table>
+<p>Las dos implementaciones produjeron la misma secuencia: coincidieron los <b>10 000 de 10 000</b> valores.</p>
+
+<h3>6.2 Prueba Chi-cuadrado</h3>
+<table class="data">
+  <tr><th>Intervalo</th><th>O<sub>i</sub></th><th>E<sub>i</sub></th><th>O<sub>i</sub> − E<sub>i</sub></th><th>(O<sub>i</sub> − E<sub>i</sub>)² / E<sub>i</sub></th></tr>
+  <tr><td>[0.0, 0.1)</td><td>1016</td><td>1000</td><td>+16</td><td>0.2560</td></tr>
+  <tr><td>[0.1, 0.2)</td><td>993</td><td>1000</td><td>-7</td><td>0.0490</td></tr>
+  <tr><td>[0.2, 0.3)</td><td>1049</td><td>1000</td><td>+49</td><td>2.4010</td></tr>
+  <tr><td>[0.3, 0.4)</td><td>940</td><td>1000</td><td>-60</td><td>3.6000</td></tr>
+  <tr><td>[0.4, 0.5)</td><td>949</td><td>1000</td><td>-51</td><td>2.6010</td></tr>
+  <tr><td>[0.5, 0.6)</td><td>1063</td><td>1000</td><td>+63</td><td>3.9690</td></tr>
+  <tr><td>[0.6, 0.7)</td><td>1014</td><td>1000</td><td>+14</td><td>0.1960</td></tr>
+  <tr><td>[0.7, 0.8)</td><td>1016</td><td>1000</td><td>+16</td><td>0.2560</td></tr>
+  <tr><td>[0.8, 0.9)</td><td>984</td><td>1000</td><td>-16</td><td>0.2560</td></tr>
+  <tr><td>[0.9, 1.0)</td><td>976</td><td>1000</td><td>-24</td><td>0.5760</td></tr>
+  <tr><td colspan="4"><b>χ² = Σ (Oᵢ − Eᵢ)² / Eᵢ</b></td><td><b>14.1600</b></td></tr>
+</table>
+<figure>
+  <img src="../resultados/chi_cuadrado.png" alt="Frecuencias observadas y esperadas">
+  <figcaption>Figura 1. Frecuencias observadas frente a la esperada en los 10 intervalos.</figcaption>
+</figure>
+<table class="data">
+  <tr><th class="left">Lenguaje</th><th>χ²</th><th>gl</th><th>Valor p</th><th>Decisión (α = 0.05)</th></tr>
+  <tr><td class="left">Python</td><td>14.1600</td><td>9</td><td>0.1167</td><td>No se rechaza H<sub>0</sub></td></tr>
+  <tr><td class="left">Java</td><td>14.1600</td><td>9</td><td>0.1167</td><td>No se rechaza H<sub>0</sub></td></tr>
+</table>
+<p>Como χ² = 14.16 &lt; 16.919 (p = 0.117 ≥ 0.05), <b>no se rechaza H<sub>0</sub></b>: las frecuencias son compatibles con una distribución uniforme. Los intervalos que más aportan al estadístico son [0.5, 0.6) con 63 valores de más y [0.3, 0.4) con 60 de menos, desviaciones normales para una muestra aleatoria de este tamaño.</p>
+
+<h3>6.3 Prueba Kolmogorov-Smirnov</h3>
+<figure>
+  <img src="../resultados/kolmogorov_smirnov.png" alt="Distribución acumulada empírica y teórica">
+  <figcaption>Figura 2. F<sub>n</sub>(x) frente a F(x) = x con los 10 000 valores (izquierda) y con los primeros 50, donde se ve el segmento D (derecha).</figcaption>
+</figure>
+<table class="data">
+  <tr><th class="left">Lenguaje</th><th>D<sup>+</sup></th><th>D<sup>−</sup></th><th>D</th><th>Valor p</th><th>Decisión (α = 0.05)</th></tr>
+  <tr><td class="left">Python</td><td>0.005960</td><td>0.005411</td><td>0.005960</td><td>0.8686</td><td>No se rechaza H<sub>0</sub></td></tr>
+  <tr><td class="left">Java</td><td>0.005960</td><td>0.005411</td><td>0.005960</td><td>0.8686</td><td>No se rechaza H<sub>0</sub></td></tr>
+</table>
+<p>La mayor distancia entre las dos curvas es D = 0.00596, menor que el valor crítico 1.358/√10 000 ≈ 0.0136. Con p = 0.869 <b>no se rechaza H<sub>0</sub></b>: la distribución empírica es prácticamente igual a la uniforme. Las dos curvas de la Figura 2 (izquierda) casi no se distinguen.</p>
+
+<h3>6.4 Comparación de configuraciones del generador</h3>
+<table class="data">
+  <tr><th class="left">Configuración</th><th>a</th><th>c</th><th>m</th><th>Distintos</th><th>χ²</th><th>p χ²</th><th>D</th><th>p KS</th><th class="left">Rechaza H<sub>0</sub> en</th></tr>
+  <tr><td class="left">Guía (Numerical Recipes)</td><td>1664525</td><td>1013904223</td><td>2<sup>32</sup></td><td>10 000</td><td>14.160</td><td>0.117</td><td>0.00596</td><td>0.869</td><td class="left">Ninguna</td></tr>
+  <tr><td class="left">RANDU (IBM, años 60)</td><td>65539</td><td>0</td><td>2<sup>31</sup></td><td>10 000</td><td>8.812</td><td>0.455</td><td>0.00636</td><td>0.813</td><td class="left">Ninguna</td></tr>
+  <tr><td class="left">Módulo pequeño</td><td>137</td><td>187</td><td>256</td><td>256</td><td>3.536</td><td>0.939</td><td>0.00403</td><td>0.997</td><td class="left">Ninguna</td></tr>
+  <tr><td class="left">Incremento fijo</td><td>1</td><td>429496731</td><td>2<sup>32</sup></td><td>10 000</td><td>0.000</td><td>1.000</td><td>0.09999</td><td>1.7·10<sup>−87</sup></td><td class="left">Solo KS</td></tr>
+  <tr><td class="left">Multiplicador par</td><td>1664524</td><td>1013904223</td><td>2<sup>32</sup></td><td>16</td><td>89 720.2</td><td>≈ 0</td><td>0.66999</td><td>≈ 0</td><td class="left">Ambas</td></tr>
+</table>
+<figure>
+  <img src="../resultados/configuraciones.png" alt="Histograma y distribución acumulada por configuración">
+  <figcaption>Figura 3. Histograma (arriba) y F<sub>n</sub>(x) frente a F(x) (abajo) de cada configuración, con n = 10 000.</figcaption>
+</figure>
+<p>En las cinco configuraciones, Java obtuvo los mismos estadísticos que Python. Los resultados muestran tres situaciones distintas:</p>
+<ul>
+  <li><b>Multiplicador par:</b> al incumplir Hull-Dobell, la secuencia cae en un ciclo de solo 16 valores, todos en [0.3, 0.4). Ambas pruebas lo rechazan con p ≈ 0.</li>
+  <li><b>Incremento fijo (a = 1):</b> cada valor es el anterior más ≈ 0.1, así que la secuencia es 0.1, 0.2, …, 0.9, 0.0, 0.1, … con un desplazamiento mínimo en cada vuelta. Cada intervalo recibe <i>exactamente</i> 1000 valores, χ² = 0 y Chi-cuadrado no detecta nada. KS, en cambio, ve que los datos se amontonan en 10 puntos (F<sub>n</sub> es una escalera) y la rechaza.</li>
+  <li><b>RANDU y módulo pequeño:</b> pasan ambas pruebas, pero no son buenos generadores. El de m = 256 solo tiene 256 valores distintos que se repiten 39 veces, y su p tan cercano a 1 (0.997) indica una uniformidad <i>demasiado perfecta</i> para ser azar. RANDU tiene un defecto que estas pruebas no pueden ver (Figura 4).</li>
+</ul>
+<figure>
+  <img src="../resultados/randu_3d.png" alt="Ternas consecutivas en 3D">
+  <figcaption>Figura 4. Ternas (U<sub>n</sub>, U<sub>n+1</sub>, U<sub>n+2</sub>) vistas en la dirección (2, 3, 0). Los puntos de RANDU caen en 15 planos.</figcaption>
+</figure>
+<p>En RANDU se cumple U<sub>n+2</sub> = 6U<sub>n+1</sub> − 9U<sub>n</sub> (mod 1), porque a² = (2<sup>16</sup> + 3)² ≡ 6a − 9 (mod 2<sup>31</sup>). Por eso todas las ternas caen en solo 15 planos paralelos [10], [11]. Chi-cuadrado y KS evalúan los valores uno por uno (en una dimensión), así que no detectan esta dependencia entre valores consecutivos.</p>
+
+<h3>6.5 Efecto del tamaño de la muestra</h3>
+<table class="data">
+  <tr><th>n</th><th>χ²</th><th>p χ²</th><th>D</th><th>p KS</th><th>Decisión</th></tr>
+  <tr><td>100</td><td>6.600</td><td>0.6787</td><td>0.10179</td><td>0.2381</td><td>No se rechaza H<sub>0</sub></td></tr>
+  <tr><td>1 000</td><td>4.120</td><td>0.9033</td><td>0.02864</td><td>0.3800</td><td>No se rechaza H<sub>0</sub></td></tr>
+  <tr><td>10 000</td><td>14.160</td><td>0.1167</td><td>0.00596</td><td>0.8686</td><td>No se rechaza H<sub>0</sub></td></tr>
+  <tr><td>100 000</td><td>9.160</td><td>0.4226</td><td>0.00207</td><td>0.7829</td><td>No se rechaza H<sub>0</sub></td></tr>
+</table>
+<p>El generador de la guía pasa ambas pruebas con todos los tamaños. D disminuye aproximadamente como 1/√n (0.102 → 0.029 → 0.006 → 0.002): con más datos, F<sub>n</sub> se acerca más a F. Las pruebas se vuelven más exigentes con n grande, porque detectan desviaciones cada vez más pequeñas.</p>
+
+<h3>6.6 Pruebas repetidas: el significado de α</h3>
+<figure>
+  <img src="../resultados/valores_p.png" alt="Distribución de los valores p">
+  <figcaption>Figura 5. Valores p de 200 bloques consecutivos de 1000 números.</figcaption>
+</figure>
+<p>Chi-cuadrado rechazó H<sub>0</sub> en 8 de 200 bloques (4 %) y KS en 10 de 200 (5 %). Esto es lo esperado: si H<sub>0</sub> es cierta, el valor p se distribuye uniformemente en [0, 1], así que con α = 0.05 se rechaza en ≈ 5 % de los casos solo por azar (error tipo I). Un rechazo aislado no indica que el generador sea malo. Lo que indicaría un problema es que se rechace con mucha más frecuencia que α.</p>
+
+<h3>6.7 Tabla de resultados esperados: estimación de π</h3>
+<table class="data">
+  <tr><th>N</th><th>π estimado (Python = Java)</th><th>Error |π̂ − π|</th><th>Tiempo Python (s)</th><th>Tiempo Java (s)</th></tr>
+  <tr><td>1 000</td><td>3.172000</td><td>0.030407</td><td>0.002117</td><td>0.001844</td></tr>
+  <tr><td>10 000</td><td>3.158800</td><td>0.017207</td><td>0.020080</td><td>0.003547</td></tr>
+  <tr><td>100 000</td><td>3.141080</td><td>0.000513</td><td>0.174623</td><td>0.027337</td></tr>
+  <tr><td>1 000 000</td><td>3.142656</td><td>0.001063</td><td>1.618530</td><td>0.043505</td></tr>
+</table>
+<figure>
+  <img src="../resultados/pi_monte_carlo.png" alt="Estimación de π y tiempos">
+  <figcaption>Figura 6. Convergencia de la estimación de π y tiempo de ejecución en ambos lenguajes.</figcaption>
+</figure>
+<p>Python y Java obtienen exactamente la misma estimación para cada N, porque usan la misma secuencia. El error disminuye en general al aumentar N, aproximadamente como 1.64/√N (la desviación estándar de un estimador de Monte Carlo [12]). No baja en cada paso porque la estimación también es aleatoria: con N = 100 000 el error fue 0.0005 y con 1 000 000, 0.0011, ambos dentro de lo esperado (0.005 y 0.0016). En tiempo, Java fue unas <b>37 veces</b> más rápido con N = 1 000 000 (0.044 s frente a 1.62 s), porque compila a código nativo durante la ejecución (JIT), mientras que Python interpreta cada operación. Los tiempos varían un poco entre ejecuciones.</p>
+
+<h2>7.&nbsp; Preguntas de Control</h2>
+<ol>
+  <li><p class="question">¿Qué es la hipótesis nula?</p>
+  <p>Es la afirmación que se pone a prueba y se mantiene mientras los datos no aporten evidencia suficiente en su contra [3]. En esta práctica, H<sub>0</sub>: los números generados siguen una distribución U(0, 1).</p></li>
+  <li><p class="question">¿Qué representa el valor p?</p>
+  <p>La probabilidad de obtener un estadístico igual o más extremo que el observado <i>suponiendo que H<sub>0</sub> es cierta</i>. Un p pequeño indica que el resultado sería muy raro bajo H<sub>0</sub>. No es la probabilidad de que H<sub>0</sub> sea cierta [3]. Por ejemplo, χ² = 14.16 tiene p = 0.117: una muestra realmente uniforme daría un χ² así de grande o mayor el 11.7 % de las veces.</p></li>
+  <li><p class="question">¿Qué significa rechazar H₀?</p>
+  <p>Que, con un nivel de significancia α = 0.05, los datos son incompatibles con una distribución uniforme (p &lt; 0.05). Existe un 5 % de probabilidad de rechazar por error una H<sub>0</sub> cierta (error tipo I), como se vio en la sección 6.6. Además, <i>no rechazar</i> H<sub>0</sub> no demuestra que sea cierta; solo indica que no hay evidencia en su contra.</p></li>
+  <li><p class="question">¿Qué diferencia existe entre Chi-cuadrado y KS?</p>
+  <p>Chi-cuadrado agrupa los datos en k intervalos y compara frecuencias. Sirve también para distribuciones discretas, pero pierde información dentro de cada intervalo y su resultado depende de k. KS compara la distribución acumulada completa, usa cada valor sin agrupar y es más sensible con muestras pequeñas, pero en su forma clásica es para distribuciones continuas completamente especificadas [2], [6]. La configuración con a = 1 muestra la diferencia: tiene frecuencias perfectas (χ² = 0), pero KS la rechaza porque los valores se amontonan dentro de cada intervalo.</p></li>
+  <li><p class="question">¿Por qué una prueba estadística no demuestra que un generador sea verdaderamente aleatorio?</p>
+  <p>Por cuatro razones. Primero, una prueba solo puede rechazar H<sub>0</sub>, nunca demostrarla: no rechazar significa "no se encontró evidencia en contra". Segundo, cada prueba revisa una sola propiedad: Chi-cuadrado y KS revisan la uniformidad en una dimensión, pero no la independencia entre valores. RANDU pasa ambas y sin embargo sus ternas caen en 15 planos. Tercero, los generadores son deterministas: con la semilla se predice toda la secuencia, y el de m = 256 pasa ambas pruebas con solo 256 valores que se repiten. Cuarto, se analiza una muestra finita. Por eso se aplican baterías de muchas pruebas, como TestU01 [13]: un generador nunca se demuestra aleatorio, solo acumula evidencia de que se comporta como tal.</p></li>
+</ol>
+
+<h2>8.&nbsp; Conclusiones</h2>
+<ul class="square">
+  <li>El LCG de la guía (a = 1664525, c = 1013904223, m = 2<sup>32</sup>) pasa ambas pruebas: χ² = 14.16 (p = 0.117) y D = 0.00596 (p = 0.869). No se rechaza que sus valores sigan una distribución U(0, 1).</li>
+  <li>Las implementaciones en Python y Java son funcionales y equivalentes: producen la misma secuencia de 10 000 valores, los mismos estadísticos y valores p en las cinco configuraciones, y la misma estimación de π.</li>
+  <li>Las dos pruebas se complementan. Chi-cuadrado no detectó la configuración con a = 1 (χ² = 0) y KS sí. Un generador defectuoso, como el de multiplicador par, es rechazado por ambas.</li>
+  <li>Pasar las pruebas de uniformidad es necesario, pero no suficiente: RANDU y el módulo pequeño las pasan y aun así son malos generadores. Siempre se debe revisar también la independencia y el período.</li>
+  <li>Con α = 0.05, alrededor del 5 % de las muestras de un buen generador son rechazadas por azar (4 % y 5 % en 200 bloques). Por eso la calidad se juzga con muchas repeticiones, no con un solo valor p.</li>
+  <li>Para simulaciones grandes, Java fue unas 37 veces más rápido que Python puro con el mismo algoritmo.</li>
+</ul>
+
+<h2>9.&nbsp; Recomendaciones</h2>
+<ul class="square">
+  <li>Aplicar siempre más de una prueba y complementar las de uniformidad con pruebas de independencia (rachas, autocorrelación, series en 2D y 3D).</li>
+  <li>Desconfiar también de valores p muy cercanos a 1: una uniformidad "demasiado perfecta" puede indicar un patrón.</li>
+  <li>Repetir las pruebas con varias muestras o semillas y revisar que la proporción de rechazos sea cercana a α.</li>
+  <li>Para trabajo serio, usar generadores modernos (PCG64, Mersenne Twister) validados con baterías como TestU01 [13].</li>
+  <li>En Python, usar NumPy (operaciones vectorizadas) cuando se necesiten millones de números, o un lenguaje compilado como Java.</li>
+</ul>
+
+<h2>10.&nbsp; Bibliografía / Referencias</h2>
+<div class="refs">
+  <p>[1] D. E. Knuth, <i>The Art of Computer Programming, Vol. 2: Seminumerical Algorithms</i>, 3rd ed. Reading, MA, USA: Addison-Wesley, 1997.</p>
+  <p>[2] J. Banks, J. S. Carson, B. L. Nelson y D. M. Nicol, <i>Discrete-Event System Simulation</i>, 5th ed. Upper Saddle River, NJ, USA: Pearson, 2010.</p>
+  <p>[3] D. C. Montgomery y G. C. Runger, <i>Applied Statistics and Probability for Engineers</i>, 7th ed. Hoboken, NJ, USA: Wiley, 2018.</p>
+  <p>[4] A. M. Law, <i>Simulation Modeling and Analysis</i>, 5th ed. New York, NY, USA: McGraw-Hill, 2015.</p>
+  <p>[5] W. H. Press, S. A. Teukolsky, W. T. Vetterling y B. P. Flannery, <i>Numerical Recipes: The Art of Scientific Computing</i>, 3rd ed. Cambridge, U.K.: Cambridge University Press, 2007.</p>
+  <p>[6] F. J. Massey, “The Kolmogorov-Smirnov test for goodness of fit,” <i>Journal of the American Statistical Association</i>, vol. 46, no. 253, pp. 68–78, 1951.</p>
+  <p>[7] M. A. Stephens, “Use of the Kolmogorov-Smirnov, Cramér-von Mises and related statistics without extensive tables,” <i>Journal of the Royal Statistical Society, Series B</i>, vol. 32, no. 1, pp. 115–122, 1970.</p>
+  <p>[8] P. Virtanen <i>et al.</i>, “SciPy 1.0: Fundamental algorithms for scientific computing in Python,” <i>Nature Methods</i>, vol. 17, pp. 261–272, 2020.</p>
+  <p>[9] J. D. Hunter, “Matplotlib: A 2D graphics environment,” <i>Computing in Science &amp; Engineering</i>, vol. 9, no. 3, pp. 90–95, 2007.</p>
+  <p>[10] G. Marsaglia, “Random numbers fall mainly in the planes,” <i>Proceedings of the National Academy of Sciences</i>, vol. 61, no. 1, pp. 25–28, 1968.</p>
+  <p>[11] P. L’Ecuyer, “Tables of linear congruential generators of different sizes and good lattice structure,” <i>Mathematics of Computation</i>, vol. 68, no. 225, pp. 249–260, 1999.</p>
+  <p>[12] N. Metropolis y S. Ulam, “The Monte Carlo method,” <i>Journal of the American Statistical Association</i>, vol. 44, no. 247, pp. 335–341, 1949.</p>
+  <p>[13] P. L’Ecuyer y R. Simard, “TestU01: A C library for empirical testing of random number generators,” <i>ACM Transactions on Mathematical Software</i>, vol. 33, no. 4, art. 22, 2007.</p>
+  <p>[14] J. O. Guamán Quinche, “Diapositivas semana 6 – Pruebas de números pseudoaleatorios,” Universidad Nacional de Loja, 2026.</p>
+</div>
+
+<h2 class="page-break">11.&nbsp; Anexos</h2>
+<h3>Anexo A. Código fuente</h3>
+<p>El código completo está en el repositorio <b>github.com/ivecanahi/simulacion-practicas</b>, carpeta <code>Unidad2/practica06</code>. Se ejecuta con:</p>
+<pre>pip install -r requirements.txt
+cd Unidad2/practica06
+python3 main.py              # Python + Java: pruebas, configuraciones, π y gráficas
+python3 -m unittest -v       # pruebas</pre>
+<p>Pruebas en Python (<code>model.py</code>):</p>
+<pre>def chi_square_test(values, k=10, alpha=0.05):
+    n = len(values)
+    observed = [0] * k
+    for u in values:
+        observed[min(int(u * k), k - 1)] += 1
+    expected = n / k
+    statistic = sum((o - expected) ** 2 / expected for o in observed)
+    p_value = chi2_sf(statistic, k - 1)
+    return {"estadistico": statistic, "gl": k - 1, "p": p_value, "rechaza": p_value &lt; alpha}
+
+def ks_test(values, alpha=0.05):
+    ordered = sorted(values)
+    n = len(ordered)
+    d_plus = max((i + 1) / n - u for i, u in enumerate(ordered))
+    d_minus = max(u - i / n for i, u in enumerate(ordered))
+    d = max(d_plus, d_minus)
+    p_value = ks_sf((math.sqrt(n) + 0.12 + 0.11 / math.sqrt(n)) * d)
+    return {"estadistico": d, "p": p_value, "rechaza": p_value &lt; alpha}</pre>
+<p>Kolmogorov-Smirnov en Java (<code>java/PruebasEstadisticas.java</code>):</p>
+<pre>double[] ordered = values.clone();
+Arrays.sort(ordered);
+for (int i = 0; i &lt; n; i++) {
+    dPlus = Math.max(dPlus, (i + 1.0) / n - ordered[i]);
+    dMinus = Math.max(dMinus, ordered[i] - (double) i / n);
+}
+double d = Math.max(dPlus, dMinus);
+double p = ksSf((Math.sqrt(n) + 0.12 + 0.11 / Math.sqrt(n)) * d);</pre>
+
+<h3>Anexo B. Resultado de las pruebas unitarias</h3>
+<pre>$ python3 -m unittest
+..................
+----------------------------------------------------------------------
+Ran 18 tests
+
+OK (skipped=1)      # la validación con SciPy se omite si SciPy no está instalado</pre>
+
+</td></tr></tbody>
+</table>
+</body>
+</html>
